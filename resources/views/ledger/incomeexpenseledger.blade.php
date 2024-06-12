@@ -46,30 +46,30 @@
                     <?php
                     $tbalance = 0;
                     ?> 
-            @forelse ($ledgers as $ledger)
+                    @forelse ($ledgers as $ledger)
 
-                    @if((($ledger->table_type == 'Expense') && ($ledger->transaction_type == 'Prepaid Adjust' || $ledger->transaction_type == 'Current' || $ledger->transaction_type == 'Due'|| $ledger->transaction_type == 'Payment')) || (($ledger->table_type == 'Asset') && ($ledger->transaction_type == 'Adjust' )))
-  
-                      
-                        @if($ledger->table_type == 'Expense')
-                        <?php $tbalance = $tbalance + $ledger->amount;?>
-                        @else
-                         <?php $tbalance = $tbalance - $ledger->amount;?>
-                        @endif
+                            @if((($ledger->table_type == 'Expense') && ($ledger->transaction_type == 'Prepaid Adjust' || $ledger->transaction_type == 'Current' || $ledger->transaction_type == 'Due'|| $ledger->transaction_type == 'Payment')) || (($ledger->table_type == 'Asset') && ($ledger->transaction_type == 'Adjust' )))
+        
+                            
+                                @if($ledger->table_type == 'Expense')
+                                <?php $tbalance = $tbalance + $ledger->amount;?>
+                                @else
+                                <?php $tbalance = $tbalance - $ledger->amount;?>
+                                @endif
 
 
-                    @elseif((($ledger->table_type == 'Income') && ($ledger->transaction_type == 'Advance Adjust'|| $ledger->transaction_type == 'Current' || $ledger->transaction_type == 'Due')) || (($ledger->table_type == 'Expense') && ($ledger->transaction_type == 'Account Payable' )))
-                        
-                        @if($ledger->table_type == 'Income')
-                        <?php $tbalance =   $tbalance + $ledger->amount;?>
-                        @else
-                        <?php $tbalance = $tbalance -  $ledger->amount;?>
-                        @endif
+                            @elseif((($ledger->table_type == 'Income') && ($ledger->transaction_type == 'Advance Adjust'|| $ledger->transaction_type == 'Current' || $ledger->transaction_type == 'Due')) || (($ledger->table_type == 'Expense') && ($ledger->transaction_type == 'Account Payable' )))
+                                
+                                @if($ledger->table_type == 'Income')
+                                <?php $tbalance =   $tbalance + $ledger->amount;?>
+                                @else
+                                <?php $tbalance = $tbalance -  $ledger->amount;?>
+                                @endif
 
-                    @endif
-                    
-            @empty
-            @endforelse
+                            @endif
+                            
+                    @empty
+                    @endforelse
             
                     <div class="card-body">
                         <div class="row">
@@ -122,7 +122,7 @@
                     <td>{{$ledger->description}}</td>
                     <td>{{$ledger->payment_type}}</td>
                     <td>{{$ledger->ref}}</td>
-                    @if((($ledger->table_type == 'Expense') && ($ledger->transaction_type == 'Prepaid Adjust' || $ledger->transaction_type == 'Current' || $ledger->transaction_type == 'Due'|| $ledger->transaction_type == 'Payment')) || (($ledger->table_type == 'Asset') && ($ledger->transaction_type == 'Adjust' )))
+                    @if((($ledger->table_type == 'Expense') && ($ledger->transaction_type == 'Prepaid Adjust' || $ledger->transaction_type == 'Current' || $ledger->transaction_type == 'Due'|| $ledger->transaction_type == 'Payment')) || (($ledger->table_type == 'Asset') && ($ledger->transaction_type == 'Adjust' )) || (($ledger->table_type == 'Income') && ($ledger->transaction_type == 'Refund' )))
                         
                         <td>{{$ledger->amount}}</td><!-- debit blance -->
                         <td></td><!-- credit blance -->

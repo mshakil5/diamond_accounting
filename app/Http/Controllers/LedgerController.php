@@ -815,7 +815,7 @@ class LedgerController extends Controller
         $ledgers = Transaction::where([
             ['account_id','=', $id],
             ['branch_id','=', $branch_id]
-        ])->whereIn('table_type',['Expense','Income'])->whereIn('transaction_type',['Prepaid Adjust','Current','Due','Adjust','Advance Adjust','Account Payable','Payment'])
+        ])->whereIn('table_type',['Expense','Income'])->whereIn('transaction_type',['Prepaid Adjust','Current','Due','Adjust','Advance Adjust','Account Payable','Payment','Refund'])
             ->select('t_date','description','amount','ref','transaction_type','table_type','payment_type')
             ->union($assetadjust)
             ->orderBy('t_date','DESC')->get();

@@ -62,7 +62,7 @@
 
                     @endif
 
-                @elseif(($tamount->table_type == 'Expense' && ($tamount->transaction_type == 'Current' || $tamount->transaction_type == 'Due Adjust'|| $tamount->transaction_type == 'Prepaid'|| $tamount->transaction_type == 'Payment')) || (($tamount->table_type == 'Asset') && ($tamount->transaction_type == 'Purchase' || $tamount->transaction_type == 'Payment')) || (($tamount->table_type == 'OwnerEquity') && ($tamount->transaction_type == 'Payment')) || (($tamount->table_type == 'Liabilities') && ($tamount->transaction_type == 'Payment')))
+                @elseif(($tamount->table_type == 'Expense' && ($tamount->transaction_type == 'Current' || $tamount->transaction_type == 'Due Adjust'|| $tamount->transaction_type == 'Prepaid'|| $tamount->transaction_type == 'Payment')) || (($tamount->table_type == 'Asset') && ($tamount->transaction_type == 'Purchase' || $tamount->transaction_type == 'Payment')) || (($tamount->table_type == 'OwnerEquity') && ($tamount->transaction_type == 'Payment')) || (($tamount->table_type == 'Liabilities') && ($tamount->transaction_type == 'Payment')) || (($tamount->table_type == 'Income') && ($tamount->transaction_type == 'Refund')))
 
                     @if ($tamount->table_type == 'Expense' && ($tamount->transaction_type == 'Current'|| $tamount->transaction_type == 'Due Adjust'|| $tamount->transaction_type == 'Prepaid'|| $tamount->transaction_type == 'Payment'))
 
@@ -178,7 +178,7 @@
 
                         @endif
 
-                    @elseif(($data->table_type == 'Expense' && ($data->transaction_type == 'Current' || $data->transaction_type == 'Due Adjust'|| $data->transaction_type == 'Prepaid'|| $data->transaction_type == 'Payment')) || (($data->table_type == 'Asset') && ($data->transaction_type == 'Purchase' || $data->transaction_type == 'Payment')) || ($data->table_type == 'OwnerEquity' && $data->transaction_type == 'Payment') || ($data->table_type == 'Liabilities' && $data->transaction_type == 'Payment'))
+                    @elseif(($data->table_type == 'Expense' && ($data->transaction_type == 'Current' || $data->transaction_type == 'Due Adjust'|| $data->transaction_type == 'Prepaid'|| $data->transaction_type == 'Payment')) || (($data->table_type == 'Asset') && ($data->transaction_type == 'Purchase' || $data->transaction_type == 'Payment')) || ($data->table_type == 'OwnerEquity' && $data->transaction_type == 'Payment') || ($data->table_type == 'Liabilities' && $data->transaction_type == 'Payment') || ($data->table_type == 'Income' && $data->transaction_type == 'Refund'))
 
                         @if (($data->table_type == 'Expense' && $data->transaction_type == 'Current'|| $data->transaction_type == 'Due Adjust'|| $data->transaction_type == 'Prepaid'||$data->table_type == 'Expense' && $data->transaction_type == 'Payment') || ($data->table_type == 'Liabilities' && $data->transaction_type == 'Payment'))
 
