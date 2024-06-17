@@ -1091,11 +1091,23 @@ class FinancialStatementController extends Controller
             ['table_type', '=', 'Expense'],
             ['branch_id','=', $branch_id]
         ])->whereNotNull('employee_id')->sum('at_amount');
-        $incomecash = Transaction::where([
+
+        $incomecashWithoutRefund = Transaction::where([
             ['payment_type', '=', 'Cash'],
             ['table_type', '=', 'Income'],
+            ['transaction_type', '!=', 'Refund'],
             ['branch_id','=', $branch_id]
         ])->sum('amount');
+
+        $incomecashWithRefund = Transaction::where([
+            ['payment_type', '=', 'Cash'],
+            ['table_type', '=', 'Income'],
+            ['transaction_type', '=', 'Refund'],
+            ['branch_id','=', $branch_id]
+        ])->sum('amount');
+
+        $incomecash = $incomecashWithoutRefund - $incomecashWithRefund;
+
         $totalcash = $totalassetscash + $totalliabilitycash + $totalequitycash + $incomecash - $expensecash - $expensesalarycash;
 //        for cash calculation end
 
