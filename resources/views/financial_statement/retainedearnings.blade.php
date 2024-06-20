@@ -130,7 +130,7 @@
                                     <tr>
                                         <th>Closing Balance</th>
                                         <th></th>
-                                        <th style="text-align: right">{{ number_format($profitaftertax, 2) - $totaldividend - $revenuereserve + $reverserevenue}}</th>
+                                        <th style="text-align: right">{{ $profitaftertax - $totaldividend - $revenuereserve + $reverserevenue}}</th>
 
                                     </tr>
 

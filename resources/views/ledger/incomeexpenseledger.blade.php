@@ -48,7 +48,7 @@
                     ?> 
                     @forelse ($ledgers as $ledger)
 
-                            @if((($ledger->table_type == 'Expense') && ($ledger->transaction_type == 'Prepaid Adjust' || $ledger->transaction_type == 'Current' || $ledger->transaction_type == 'Due'|| $ledger->transaction_type == 'Payment')) || (($ledger->table_type == 'Asset') && ($ledger->transaction_type == 'Adjust' )))
+                            @if((($ledger->table_type == 'Expense') && ($ledger->transaction_type == 'Prepaid Adjust' || $ledger->transaction_type == 'Current' || $ledger->transaction_type == 'Due'|| $ledger->transaction_type == 'Payment')) || (($ledger->table_type == 'Asset') && ($ledger->transaction_type == 'Adjust' )) || (($ledger->table_type == 'Income') && ($ledger->transaction_type == 'Refund' )))
         
                             
                                 @if($ledger->table_type == 'Expense')
