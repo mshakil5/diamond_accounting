@@ -667,12 +667,25 @@ class CashFlowController extends Controller
             $fromDate = $request->input('fromDate');
             $toDate   = $request->input('toDate');
 
-            $incomes = Transaction::selectRaw('SUM(amount) as sumamount, account_id')->where([
-                ['t_date', '>=', $fromDate],
-                ['t_date', '<=', $toDate],
-                ['table_type','=', 'Income'],
-                ['branch_id','=', $branch_id]
-            ])->whereIn('transaction_type', [ 'Due','Current','Advance Adjust'])->groupBy('account_id')->get();
+            // $incomes = Transaction::selectRaw('SUM(amount) as sumamount, account_id')->where([
+            //     ['t_date', '>=', $fromDate],
+            //     ['t_date', '<=', $toDate],
+            //     ['table_type','=', 'Income'],
+            //     ['branch_id','=', $branch_id]
+            // ])->whereIn('transaction_type', [ 'Due','Current','Advance Adjust'])->groupBy('account_id')->get();
+
+            $incomes = Transaction::select('account_id',
+                    DB::raw('SUM(CASE WHEN transaction_type = "Due" THEN amount ELSE 0 END) as total_due'),
+                    DB::raw('SUM(CASE WHEN transaction_type = "Current" THEN amount ELSE 0 END) as total_current'),
+                    DB::raw('SUM(CASE WHEN transaction_type = "Advance Adjust" THEN amount ELSE 0 END) as total_adv'),
+                    DB::raw('SUM(CASE WHEN transaction_type = "Refund" THEN amount ELSE 0 END) as total_refund'),
+                    DB::raw('SUM(CASE WHEN transaction_type = "Due" THEN amount ELSE 0 END) + SUM(CASE WHEN transaction_type = "Current" THEN amount ELSE 0 END) + SUM(CASE WHEN transaction_type = "Advance Adjust" THEN amount ELSE 0 END) - SUM(CASE WHEN transaction_type = "Refund" THEN amount ELSE 0 END) as sumamount, account_id')
+                )->where([
+                    ['t_date', '>=', $fromDate],
+                    ['t_date', '<=', $toDate],
+                    ['table_type','=', 'Income'],
+                    ['branch_id','=', $branch_id]
+                ])->groupBy('account_id')->get();
 
         }else{
             // $incomes = Transaction::selectRaw('SUM(amount) as sumamount, account_id')->where([
@@ -689,9 +702,7 @@ class CashFlowController extends Controller
                 )->where([
                     ['table_type','=', 'Income'],
                     ['branch_id','=', $branch_id]
-                ])
-                    ->groupBy('account_id')
-                    ->get();
+                ])->groupBy('account_id')->get();
         }
 
 
@@ -1257,6 +1268,14 @@ class CashFlowController extends Controller
                 $totalincome = $income->sumamount + $totalincome;
             }
 
+            
+            $refundincomes = Transaction::where([
+                ['t_date', '>=', $fromDate],
+                ['t_date', '<=', $toDate],
+                ['table_type','=', 'Income'],
+                ['branch_id','=', $branch_id]
+            ])->whereIn('transaction_type', [ 'Refund'])->sum('amount');
+
             $adjustexpenses = Transaction::selectRaw('SUM(at_amount) as sumamount, account_id')->where([
                 ['t_date', '>=', $fromDate],
                 ['t_date', '<=', $toDate],
@@ -1417,7 +1436,7 @@ class CashFlowController extends Controller
                 $totaladdassetvat = $addassetvat->sumamount + $totaladdassetvat;
             }
 
-            $profitbeforetax = $totalincome - $totalexpense - $totalsalaryexp - $totaladjustexpense - $totaldepreciation - $totaladjustliability;
+            $profitbeforetax = $totalincome - $totalexpense - $totalsalaryexp - $totaladjustexpense - $totaldepreciation - $totaladjustliability - $refundincomes;
             $vatprovision =   $totaladdnewvat + $incomevattotal - $rcvvattotal - $totaladdassetvat;
 
             $profitaftertax = $profitbeforetax - $taxprovision - $totalsalarytax - $vatprovision ;
@@ -1448,6 +1467,11 @@ class CashFlowController extends Controller
                 $totalincome = $income->sumamount + $totalincome;
             }
 
+            $refundincomes = Transaction::where([
+                ['table_type','=', 'Income'],
+                ['branch_id','=', $branch_id]
+            ])->whereIn('transaction_type', [ 'Refund'])->sum('amount');
+                
             $adjustexpenses = Transaction::selectRaw('SUM(at_amount) as sumamount, account_id')->where([
                 ['table_type', '=', 'Asset'],
                 ['branch_id','=', $branch_id]
@@ -1603,8 +1627,8 @@ class CashFlowController extends Controller
                     ['branch_id','=', $branch_id]
                 ])->whereNull('account_id')->sum('at_amount');
 
-
-            $profitbeforetax = $totalincome - $totalexpense - $totalsalaryexp - $totaladjustexpense - $totaldepreciation - $totaladjustliability;
+                // dd($refundincomes);
+            $profitbeforetax = $totalincome - $totalexpense - $totalsalaryexp - $totaladjustexpense - $totaldepreciation - $totaladjustliability - $refundincomes;
             $vatprovision =   $totaladdnewvat + $incomevattotal - $rcvvattotal - $totaladdassetvat;
 
             $profitaftertax = $profitbeforetax - $taxprovision - $totalsalarytax - $vatprovision ;

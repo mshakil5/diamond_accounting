@@ -44,6 +44,12 @@ class FinancialStatementController extends Controller
             $income->sumamount;
             $totalincome = $income->sumamount + $totalincome;
         }
+        $refundincomes = Transaction::where([
+            ['t_date', '<=', $toDate],
+            ['table_type','=', 'Income'],
+            ['branch_id','=', $branch_id]
+        ])->whereIn('transaction_type', [ 'Refund'])->sum('amount');
+
         $adjustexpenses = Transaction::selectRaw('SUM(at_amount) as sumamount, account_id')->where([
             ['t_date', '<=', $toDate],
             ['table_type', '=', 'Asset'],
@@ -206,7 +212,7 @@ class FinancialStatementController extends Controller
         //     ['table_type', '=', 'Asset'],
         //     ['branch_id','=', $branch_id]
         // ])->whereNull('account_id')->sum('at_amount');
-        $profitbeforetax = $totalincome - $totalexpense - $totalsalaryexp - $totaladjustexpense - $totaldepreciation - $totaladjustliability;
+        $profitbeforetax = $totalincome - $totalexpense - $totalsalaryexp - $totaladjustexpense - $totaldepreciation - $totaladjustliability - $refundincomes;
         $vatprovision =   $totaladdnewvat + $incomevattotal - $rcvvattotal - $totaladdassetvat;
 //        $profitaftertax = $profitbeforetax - $taxprovision - $vatprovision-$totaldividend-$revenuereserve;
         $retainedearning = $profitbeforetax - $taxprovision - $totalsalarytax - $vatprovision-$totaldividend-$revenuereserve + $reverserevenue;
@@ -754,6 +760,12 @@ class FinancialStatementController extends Controller
             $income->sumamount;
             $totalincome = $income->sumamount + $totalincome;
         }
+        
+        $refundincomes = Transaction::where([
+            ['table_type','=', 'Income'],
+            ['branch_id','=', $branch_id]
+        ])->whereIn('transaction_type', [ 'Refund'])->sum('amount');
+        
         $adjustexpenses = Transaction::selectRaw('SUM(at_amount) as sumamount, account_id')->where([
             ['table_type', '=', 'Asset'],
             ['branch_id','=', $branch_id]
@@ -902,7 +914,7 @@ class FinancialStatementController extends Controller
         //     ['table_type', '=', 'Asset'],
         //     ['branch_id','=', $branch_id]
         // ])->whereNull('account_id')->sum('at_amount');
-        $profitbeforetax = $totalincome - $totalexpense - $totalsalaryexp - $totaladjustexpense - $totaldepreciation - $totaladjustliability;
+        $profitbeforetax = $totalincome - $totalexpense - $totalsalaryexp - $totaladjustexpense - $totaldepreciation - $totaladjustliability -  $refundincomes;
         $vatprovision =   $totaladdnewvat + $incomevattotal - $rcvvattotal - $totaladdassetvat;
 //        $profitaftertax = $profitbeforetax - $taxprovision - $vatprovision-$totaldividend-$revenuereserve;
         $retainedearning = $profitbeforetax - $taxprovision - $totalsalarytax - $vatprovision-$totaldividend-$revenuereserve + $reverserevenue;
