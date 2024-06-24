@@ -13,13 +13,10 @@
                 <div class="card">
                     <div class="card-header">
                         <h3>New Shareholder</h3>
+                        <div class="ermsg"></div>
                     </div>
                     <div class="card-body">
                         <div class="row">
-                            <div class="ermsg">
-                              
-                                
-                            </div>
                             <div class="container">
 
 
@@ -74,7 +71,7 @@
                                     <th>Name</th>
                                     <th>Email</th>
                                     <th>Phone</th>
-                                    <th>Address</th>
+                                    {{-- <th>Address</th> --}}
                                     @if (auth()->user()->user_type == 11 || auth()->user()->user_type == 2)
                                     <th>Action</th>
                                     @endif
@@ -91,7 +88,7 @@
                                         <td>{{$data->name}}</td>
                                         <td>{{$data->email}}</td>
                                         <td>{{$data->phone}}</td>
-                                        <td>{{$data->address}}</td>
+                                        {{-- <td>{{$data->address}}</td> --}}
                                         @if (auth()->user()->user_type == 11 || auth()->user()->user_type == 2)
                                             
                                             <td><a id="EditBtn" rid="{{$data->id}}"><i class="fa fa-edit" style="color: #2196f3;font-size:16px;"></i></a>
@@ -104,7 +101,7 @@
                                 </tbody>
                             </table>
 
-                            {{$data->links()}}
+                            {{-- {{$data->links()}} --}}
 
                             </div>
                         </div>
@@ -112,15 +109,6 @@
                 </div>
             </div>
         </div>
-
-
-
-
-
-
-
-
-
 
     </div>
 @endsection
@@ -147,6 +135,7 @@
             //
 
             var url = "{{URL::to('/shareholder')}}";
+            var upurl = "{{URL::to('/shareholder-update')}}";
             // console.log(url);
             $("#addBtn").click(function(){
                 // alert('form work');
