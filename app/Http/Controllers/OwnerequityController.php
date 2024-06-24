@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Asset;
 use App\Models\Account;
+use App\Models\Shareholder;
 use App\Models\Transaction;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -29,8 +30,12 @@ class OwnerequityController extends Controller
             ['branch_id','=', $branch_id]
         ])->whereIn('account_type',['Owner Equity','Dividend'])->get();
 
+        $shareholders = Shareholder::where([
+            ['branch_id','=', $branch_id]
+        ])->get();
 
-    if(!empty($request->input('fromDate')) && !empty($request->input('toDate'))){
+
+        if(!empty($request->input('fromDate')) && !empty($request->input('toDate'))){
             $fromDate = $request->input('fromDate');
             $toDate   = $request->input('toDate');
             $ownerequities = Transaction::where([
@@ -48,7 +53,7 @@ class OwnerequityController extends Controller
 
         $pdfhead = Array('fromDate'=> $fromDate,'toDate'=> $toDate,'title'=>'Owner Equity Report');
         
-        return view('ownerequity.create')->with('ownerequities',$ownerequities)->with('oe',$oe)->with('pdfhead',$pdfhead);
+        return view('ownerequity.create')->with('ownerequities',$ownerequities)->with('oe',$oe)->with('pdfhead',$pdfhead)->with('shareholders',$shareholders);
     }
     
 
@@ -71,7 +76,7 @@ class OwnerequityController extends Controller
     public function store(Request $request)
     {
         
-               if(empty($request->equity_date)){            
+        if(empty($request->equity_date)){            
             $message ="<div class='alert alert-warning'><a href='#' class='close' data-dismiss='alert' aria-label='close'>&times;</a><b>Please fill \"Date\" field..!</b></div>"; 
             return response()->json(['status'=> 303,'message'=>$message]);
             exit();
@@ -132,6 +137,7 @@ class OwnerequityController extends Controller
             $account->asset_id;
             $account->liability_id;
             $account->expense_id;
+            $account->shareholder_id = $request->shareholder_id;
             $account->branch_id = auth()->user()->branch_id;
             $account->user_type = auth()->user()->user_type;
             $account->updated_by;
@@ -241,6 +247,7 @@ class OwnerequityController extends Controller
         $ownerequitytoupdate->transaction_type = $request->transaction_type;
         $ownerequitytoupdate->payment_type = $request->payment_type;
         $ownerequitytoupdate->description = $request->description;
+        $ownerequitytoupdate->shareholder_id = $request->shareholder_id;
         $ownerequitytoupdate->updated_by = auth()->user()->name;
         $ownerequitytoupdate->updated_ip = request()->ip();
         if ($ownerequitytoupdate->save()) {

@@ -59,6 +59,18 @@
                                     </select>
                                 </div>
 
+                                
+                                <div>
+                                    <label for="shareholder_id" class="awesome">Shareholder</label>
+                                    <select name="shareholder_id" class="form-control" id="shareholder_id">
+                                        <option value="" selected>Please Select</option>
+                                        @foreach ($shareholders as $shareholder)
+                                        <option value="{{$shareholder->id}}"> {{$shareholder->name}} </option>
+                                        @endforeach
+
+                                    </select>
+                                </div>
+
                                 <div>
                                     <label for="amount">Amount</label>
                                     <input type="number" id="amount" name="amount" class="form-control" >
@@ -99,7 +111,7 @@
                     <div class="card-header">
                         <h3> Owner Equity Details</h3>
 
-                         <form  action="{{route('oe_search')}}" method ="POST">
+                        <form  action="{{route('oe_search')}}" method ="POST">
                             @csrf
                             <br>
                             <div class="container">
@@ -117,13 +129,9 @@
                                             <div class="col-md-2">
                                                 <button type="submit" class="btn" name="search" title="Search"><img src="https://img.icons8.com/android/24/000000/search.png"/></button>
                                             </div>
-
                                         </div>
-
                                     </div>
-
                                 </div>
-
                             </div>
                             <br>
                         </form>
@@ -138,7 +146,8 @@
                                     <h5>Phone: {{(auth()->user()->branch->branch_phone) }}</h5>
                                     <p>{{(auth()->user()->branch->branch_address) }}</p>
                                     <h5>Owner Equity Details</h5>
-                                 <?php 
+
+                                    <?php 
                                         if(isset($pdfhead["title"])){
                                             $title = $pdfhead["title"];
                                         }else {
@@ -154,55 +163,53 @@
                                         }else{
                                             $toDate = "";
                                         }
-                                        ?>
+                                    ?>
             
-                             <h3>Data: {{$fromDate.' '.$toDate}} </h3>                                       
+                                    <h3>Data: {{$fromDate.' '.$toDate}}</h3>                                       
                                 </div>
 
-                            <table class="table table-bordered table-hover"   id="example">
-            <thead>
-            <tr>
-                <th>Date</th>
-                <th>Account</th>
-                <th>Ref</th>
-                <th>Description</th>
-                <th>Transaction Type</th>
-                <th>Payment Type</th>
-                <th>Amount</th>
-                @if (auth()->user()->user_type == 11 || auth()->user()->user_type == 2)
-                <th>Action</th>
-                @endif
-            </tr>
-            </thead>
-            <tbody>
-            @forelse ($ownerequities as $oe)
-                <tr>
-                    <td>{{$oe->t_date}}</td>
-                    <td>{{$oe->account->account_name}}</td>
-                    <td>{{$oe->ref}}</td>
-                    <td>{{$oe->description}}</td>
-                    <td>{{$oe->transaction_type}}</td>
-                    <td>{{$oe->payment_type}}</td>
-                    <td>{{$oe->at_amount}}</td>
-                    
-                    @if (auth()->user()->user_type == 11 || auth()->user()->user_type == 2)
-                        <td>
-                        <a id="EditBtn" rid="{{$oe->id}}"><i class="fa fa-edit" style="color: #2196f3;font-size:16px;"></i></a>
-                        @if (auth()->user()->user_type == 11)
-                        <a id="deleteBtn" rid="{{$oe->id}}"><i class="fa fa-trash-o" style="color: red;font-size:16px;"></i></a>
-                        @endif
-                        <a href="#" rid="{{$oe->id}}" data-toggle="modal" data-target="#assignSubcat" class="trandiagnosis"><i class="fa fa-eye" style="color: #5cb85c;font-size:16px;"></i></a>
-                        </td>
-                    @endif
-                    
-                </tr>
-            @empty
-                <h3>No data found. Create a new Owners Equity</h3>
-            @endforelse
-            </tbody>
-        </table>
-
-
+                                <table class="table table-bordered table-hover" id="example">
+                                    <thead>
+                                    <tr>
+                                        <th>Date</th>
+                                        <th>Account</th>
+                                        <th>Ref</th>
+                                        <th>Description</th>
+                                        <th>Transaction Type</th>
+                                        <th>Payment Type</th>
+                                        <th>Amount</th>
+                                        @if (auth()->user()->user_type == 11 || auth()->user()->user_type == 2)
+                                        <th>Action</th>
+                                        @endif
+                                    </tr>
+                                    </thead>
+                                    <tbody>
+                                    @forelse ($ownerequities as $oe)
+                                        <tr>
+                                            <td>{{$oe->t_date}}</td>
+                                            <td>{{$oe->account->account_name}}</td>
+                                            <td>{{$oe->ref}}</td>
+                                            <td>{{$oe->description}}</td>
+                                            <td>{{$oe->transaction_type}}</td>
+                                            <td>{{$oe->payment_type}}</td>
+                                            <td>{{$oe->at_amount}}</td>
+                                            
+                                            @if (auth()->user()->user_type == 11 || auth()->user()->user_type == 2)
+                                                <td>
+                                                <a id="EditBtn" rid="{{$oe->id}}"><i class="fa fa-edit" style="color: #2196f3;font-size:16px;"></i></a>
+                                                @if (auth()->user()->user_type == 11)
+                                                <a id="deleteBtn" rid="{{$oe->id}}"><i class="fa fa-trash-o" style="color: red;font-size:16px;"></i></a>
+                                                @endif
+                                                <a href="#" rid="{{$oe->id}}" data-toggle="modal" data-target="#assignSubcat" class="trandiagnosis"><i class="fa fa-eye" style="color: #5cb85c;font-size:16px;"></i></a>
+                                                </td>
+                                            @endif
+                                            
+                                        </tr>
+                                    @empty
+                                        <h3>No data found. Create a new Owners Equity</h3>
+                                    @endforelse
+                                    </tbody>
+                                </table>
                             </div>
                         </div>
                     </div>
@@ -290,6 +297,7 @@
                     var ref= $("#ref").val();
                     var amount= $("#amount").val();
                     var transaction_type= $("#transaction_type").val();
+                    var shareholder_id= $("#shareholder_id").val();
 
 
                     var i = $("#account_id").val();
@@ -303,7 +311,7 @@
                     $.ajax({
                         url: url,
                         method: "POST",
-                        data: {equity_date:equity_date,account_id:account_id,ref:ref,amount:amount,transaction_type:transaction_type,payment_type:payment_type,description:description},
+                        data: {equity_date:equity_date,account_id:account_id,ref:ref,amount:amount,transaction_type:transaction_type,payment_type:payment_type,description:description,shareholder_id:shareholder_id},
                         success: function (d) {
                             if (d.status == 303) {
                                 $(".ermsg").html(d.message);
@@ -334,6 +342,7 @@
                             account_id:account_id,
                             ref: $("#ref").val(),
                             amount: $("#amount").val(),
+                            shareholder_id: $("#shareholder_id").val(),
                             transaction_type: $("#transaction_type").val(),
                             amount_type: $("#amount_type").val(),
                             payment_type: $("#payment_type").val(),
@@ -413,6 +422,7 @@
                 }
                 
                 $("#ref").val(data.ref);
+                $("#shareholder_id").val(data.shareholder_id);
                 $("#amount").val(data.at_amount);
                 $("#transaction_type").val(data.transaction_type);
                 
