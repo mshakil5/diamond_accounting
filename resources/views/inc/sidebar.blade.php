@@ -87,6 +87,10 @@
             <ul class="treeview-menu">
                 <li><a class="treeview-item" href="{{url('ownerequity')}}" id="ownerequity"><i class="icon fa fa-circle-o"></i>Add Owners Equity </a></li>
                 <li><a class="treeview-item" href="{{url('ledger/ownerequity')}}" id="oeledger"><i class="icon fa fa-circle-o"></i>Owner Equity Ledger</a></li>
+
+                
+                <li><a class="treeview-item" href="{{url('shareholder')}}" id="shareholder"><i class="icon fa fa-circle-o"></i>Add Shareholder </a></li>
+
             </ul>
         </li>
         

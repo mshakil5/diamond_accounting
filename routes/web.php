@@ -1,6 +1,7 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\ShareholdersController;
 
 /*
 |--------------------------------------------------------------------------
@@ -188,6 +189,12 @@ Route::post('employeeTax_ledger_search','App\Http\Controllers\LedgerController@g
 
    
 
+    
+    Route::get('/shareholder', [ShareholdersController::class, 'index'])->name('admin.shareholder');
+    Route::post('/shareholder', [ShareholdersController::class, 'store']);
+    Route::get('/shareholder/{id}/edit', [ShareholdersController::class, 'edit']);
+    Route::post('/shareholder-update', [ShareholdersController::class, 'update']);
+    Route::get('/shareholder/{id}', [ShareholdersController::class, 'delete']);
 
 
 
