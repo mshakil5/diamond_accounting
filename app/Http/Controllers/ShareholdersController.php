@@ -133,6 +133,66 @@ class ShareholdersController extends Controller
     }
 
 
+    public function getShareholderList()
+    {
+        $branch_id = auth()->user()->branch_id;
+        $data = Shareholder::where('branch_id', $branch_id)->get();
+        return view('ledger.shareholder')->with('data', $data);
+    }
+
+    public function getShareholderCapitalLedger($id)
+    {
+        $id = $id;
+            $fromDate = "";
+            $toDate = "";        
+        $branch_id = auth()->user()->branch_id;
+        $shareholder = Shareholder::where('id', $id)->first();
+
+        $data = Transaction::where([
+            ['shareholder_id','=', $id],
+            ['branch_id','=', $branch_id]
+        ])->whereIn('transaction_type',['Receive','Payment'])->orderBy('created_at','DESC')
+        ->get();
+        
+        $title =  $shareholder->name.' Ledger (Shareholder)';
+        $pdfhead = Array('fromDate'=> $fromDate,'toDate'=> $toDate,'title'=>$title);           
+        
+        return view('ledger.shareholdercapitalledger')
+        ->with('data', $data)
+        ->with('id', $id)
+        ->with('shareholder', $shareholder)->with('pdfhead',$pdfhead);
+    }
+
+
+    public function getShareholderCapitalLedgerSearch(Request $request)
+    {
+        $branch_id = auth()->user()->branch_id;
+
+
+        $fromDate = $request->input('fromDate');
+        $toDate   = $request->input('toDate');
+        $id   = $request->input('shareholderid');
+        $shareholder = Shareholder::where('id', $id)->first();
+        
+        $data = Transaction::where([
+            ['t_date', '>=', $fromDate],
+            ['t_date', '<=', $toDate],
+            ['shareholder_id','=', $id],
+            ['branch_id','=', $branch_id]
+        ])->whereIn('transaction_type',['Receive','Payment'])->orderBy('created_at','DESC')
+        ->get();
+
+        
+        $title =  $shareholder->name.' Ledger (Shareholder)';
+        $pdfhead = Array('fromDate'=> $fromDate,'toDate'=> $toDate,'title'=>$title);  
+
+        return view('ledger.shareholdercapitalledger')
+            ->with('shareholder', $shareholder)
+            ->with('id', $id)
+            ->with('data', $data)->with('pdfhead',$pdfhead)->with('title',$title);
+    }
+    
+
 
 
 }
