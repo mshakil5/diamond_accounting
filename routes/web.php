@@ -197,7 +197,9 @@ Route::post('employeeTax_ledger_search','App\Http\Controllers\LedgerController@g
     Route::get('/shareholder/{id}', [ShareholdersController::class, 'delete']);
 
     Route::get('/ledger/shareholder-ledger', [ShareholdersController::class, 'getShareholderList'])->name('shareholderLedgerList');
+
     Route::get('/ledger/shareholder-dividend-ledger/{id}', [ShareholdersController::class, 'getShareholderListDividendLedger'])->name('shareholderDividendLedger');
+    Route::post('/ledger/shareholder-dividend-ledger/{id}', [ShareholdersController::class, 'getShareholderListDividendLedgerSearch'])->name('shareholderDividendLedgerSearch');
     
 
 

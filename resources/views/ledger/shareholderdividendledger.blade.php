@@ -10,9 +10,9 @@
         <div class="col-md-12">
             <div class="card">
                 <div class="card-header">
-                    <h3>  {{ $shareholder->name }} Capital Ledger </h3>
+                    <h3>  {{ $shareholder->name }} Dividend Ledger </h3>
 
-                        <form  action="{{route('shareholderCapitalLedgerSearch', $id)}}" method ="POST">
+                        <form  action="{{route('shareholderDividendLedgerSearch', $id)}}" method ="POST">
                         @csrf
                         <br>
                         <div class="container">
@@ -46,7 +46,7 @@
                     
                     @forelse ($data as $shareholder)
 
-                            @if($shareholder->transaction_type =='Receive')
+                            @if($shareholder->transaction_type =='Payable')
 
                             <?php $tbalance =  $tbalance + $shareholder->at_amount;?>
                             
@@ -120,7 +120,7 @@
                                         <td>{{ round($tbalance, 2) }}</td> <!-- total blance -->
                                         <?php $tbalance =  $tbalance + $employee->at_amount;?>
                                         
-                                        @elseif($employee->transaction_type == 'Receive')
+                                        @elseif($employee->transaction_type == 'Payable')
                                         
                                         <td></td><!-- debit blance -->
                                         <td>{{$employee->at_amount}}</td>  <!-- credit blance -->

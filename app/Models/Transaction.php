@@ -27,6 +27,7 @@ class Transaction extends Model
         'liability_id',
         'expense_id',
         'branch_id',
+        'shareholder_id',
         'user_type',
         'updated_by',
         'created_by',

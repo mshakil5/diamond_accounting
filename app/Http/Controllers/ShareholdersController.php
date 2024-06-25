@@ -151,10 +151,16 @@ class ShareholdersController extends Controller
         $data = Transaction::where([
             ['shareholder_id','=', $id],
             ['branch_id','=', $branch_id]
-        ])->whereIn('transaction_type',['Receive','Payment'])->orderBy('created_at','DESC')
+        ])
+        ->whereHas('account', function ($query) {
+            $query->whereIn('account_name',['Withdraw','Capital']);
+        })
+        ->whereIn('transaction_type',['Receive','Payment'])->orderBy('created_at','DESC')
         ->get();
+
+
         
-        $title =  $shareholder->name.' Ledger (Shareholder)';
+        $title =  $shareholder->name.' Capital Ledger (Shareholder)';
         $pdfhead = Array('fromDate'=> $fromDate,'toDate'=> $toDate,'title'=>$title);           
         
         return view('ledger.shareholdercapitalledger')
@@ -179,11 +185,15 @@ class ShareholdersController extends Controller
             ['t_date', '<=', $toDate],
             ['shareholder_id','=', $id],
             ['branch_id','=', $branch_id]
-        ])->whereIn('transaction_type',['Receive','Payment'])->orderBy('created_at','DESC')
+        ])
+        ->whereHas('account', function ($query) {
+            $query->whereIn('account_name',['Withdraw','Capital']);
+        })
+        ->whereIn('transaction_type',['Receive','Payment'])->orderBy('created_at','DESC')
         ->get();
 
         
-        $title =  $shareholder->name.' Ledger (Shareholder)';
+        $title =  $shareholder->name.' Capital Ledger (Shareholder)';
         $pdfhead = Array('fromDate'=> $fromDate,'toDate'=> $toDate,'title'=>$title);  
 
         return view('ledger.shareholdercapitalledger')
@@ -192,6 +202,64 @@ class ShareholdersController extends Controller
             ->with('data', $data)->with('pdfhead',$pdfhead)->with('title',$title);
     }
     
+
+    public function getShareholderListDividendLedger($id)
+    {
+        $id = $id;     
+        
+            $fromDate = "";
+            $toDate = "";        
+        $branch_id = auth()->user()->branch_id;
+        $shareholder = Shareholder::where('id', $id)->first();
+
+        $data = Transaction::where([
+                            ['shareholder_id','=', $id],
+                            ['branch_id','=', $branch_id]
+                        ])
+                        ->whereHas('account', function ($query) {
+                            $query->where('account_type', 'Dividend');
+                        })
+                        ->whereIn('transaction_type',['Payable','Payment'])->orderBy('created_at','DESC')
+                        ->get();
+
+
+        $title =  $shareholder->name.' Dividend Ledger (Shareholder)';
+        $pdfhead = Array('fromDate'=> $fromDate,'toDate'=> $toDate,'title'=>$title);   
+        return view('ledger.shareholderdividendledger')
+        ->with('data', $data)
+        ->with('id', $id)
+        ->with('shareholder', $shareholder)->with('pdfhead',$pdfhead);
+    }
+
+    public function getShareholderListDividendLedgerSearch(Request $request)
+    {
+        $branch_id = auth()->user()->branch_id;
+        $fromDate = $request->input('fromDate');
+        $toDate   = $request->input('toDate');
+        $id   = $request->input('shareholderid');
+        $shareholder = Shareholder::where('id', $id)->first();
+        
+        $data = Transaction::where([
+            ['t_date', '>=', $fromDate],
+            ['t_date', '<=', $toDate],
+            ['shareholder_id','=', $id],
+            ['branch_id','=', $branch_id]
+        ])
+        ->whereHas('account', function ($query) {
+            $query->where('account_type', 'Dividend');
+        })
+        ->whereIn('transaction_type',['Payable','Payment'])->orderBy('created_at','DESC')
+        ->get();
+
+        
+        $title =  $shareholder->name.' Dividend Ledger (Shareholder)';
+        $pdfhead = Array('fromDate'=> $fromDate,'toDate'=> $toDate,'title'=>$title);  
+
+        return view('ledger.shareholderdividendledger')
+            ->with('shareholder', $shareholder)
+            ->with('id', $id)
+            ->with('data', $data)->with('pdfhead',$pdfhead)->with('title',$title);
+    }
 
 
 
