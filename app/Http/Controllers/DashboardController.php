@@ -21,7 +21,7 @@ class DashboardController extends Controller
         $branch_id = auth()->user()->branch_id;
 
 
-        //                      for cash calculation
+        //  for cash calculation
         $receivecurrentcash = Transaction::whereIn('transaction_type', [ 'Sold','Receive'])->where([
             ['table_type', '=', 'Asset'],
             ['payment_type', '=', 'Cash'],
@@ -67,16 +67,33 @@ class DashboardController extends Controller
             ['branch_id','=', $branch_id]
         ])->whereNotNull('employee_id')->sum('at_amount');
 
-        $incomecash = Transaction::where([
+        $incomecashNotRefund = Transaction::where([
             ['payment_type', '=', 'Cash'],
             ['table_type', '=', 'Income'],
             ['branch_id','=', $branch_id]
-        ])->sum('amount');
+        ])
+        ->where('transaction_type','!=',  'Refund')
+        ->sum('amount');
+
+        $incomecashRefund = Transaction::where([
+            ['payment_type', '=', 'Cash'],
+            ['table_type', '=', 'Income'],
+            ['branch_id','=', $branch_id]
+        ])
+        ->where('transaction_type', 'Refund')
+        ->sum('amount');
+
+        $incomecash = $incomecashNotRefund - $incomecashRefund;
+
+
+
+
+
         $totalcash = $totalassetscash + $totalliabilitycash + $totalequitycash + $incomecash - $expensecash-$expensesalarycash;
-//                             for cash calculation end
+        //  for cash calculation end
 
 
-        //                     for bank calculation
+        //  for bank calculation
         $receivecurrentbank = Transaction::whereIn('transaction_type', [ 'Sold','Receive'])->where([
             ['table_type', '=', 'Asset'],
             ['payment_type', '=', 'Bank'],
@@ -121,20 +138,35 @@ class DashboardController extends Controller
             ['table_type', '=', 'Expense'],
             ['branch_id','=', $branch_id]
         ])->whereNotNull('employee_id')->sum('at_amount');
-        $incomebank = Transaction::where([
+
+        
+        $incomebankNotRefund = Transaction::where([
             ['payment_type', '=', 'Bank'],
             ['table_type', '=', 'Income'],
             ['branch_id','=', $branch_id]
-        ])->sum('amount');
+        ])
+        ->where('transaction_type','!=',  'Refund')
+        ->sum('amount');
+
+        $incomebankRefund = Transaction::where([
+            ['payment_type', '=', 'Bank'],
+            ['table_type', '=', 'Income'],
+            ['branch_id','=', $branch_id]
+        ])
+        ->where('transaction_type', 'Refund')
+        ->sum('amount');
+
+        $incomebank = $incomebankNotRefund - $incomebankRefund;
+
         $totalbank = $totalassetsbank + $totalliabilitybank + $totalequitybank + $incomebank - $expensebank - $expensesalarybank;
-//                          for bank calculation end
+        //    for bank calculation end
 
 
 
 
 
 
-//                          for Room Sales calculation
+        //  for Room Sales calculation
 
         $roomsales = DB::table('transactions')
             ->select('transactions.*','accounts.account_type','accounts.account_name')
@@ -145,19 +177,12 @@ class DashboardController extends Controller
             ])->whereMonth('t_date', Carbon::now()->month)
             ->whereIn('transaction_type', [ 'Due','Current','Advance Adjust'])
             ->sum('amount');
-
-
-//                          for Room Sales calculation end
-
-
-
-
-//                          for Expense calculation
+        //  for Room Sales calculation end
 
 
 
 
-
+        //  for Expense calculation
         $interest = DB::table('transactions')
             ->select('transactions.*','accounts.account_type','accounts.account_name')
             ->join('accounts','accounts.id','=','transactions.account_id')
@@ -213,12 +238,12 @@ class DashboardController extends Controller
 
         $totalexpense = $interest + $adjustexpenses + $dep + $expense + $Salaryexpense;
 
-//                          for Expense calculation end
+        // for Expense calculation end
 
 
 
 
-//          monthly sales transaction
+        //    monthly sales transaction
         $monthlysales = DB::table('transactions')
             ->select('transactions.*','accounts.account_type','accounts.account_name')
             ->join('accounts','accounts.id','=','transactions.account_id')
@@ -228,7 +253,7 @@ class DashboardController extends Controller
             ])->whereMonth('t_date', Carbon::now()->month)
             ->whereIn('transaction_type', [ 'Due','Current','Advance Adjust'])
             ->sum('amount');
-//          monthly sales transaction end
+        //   monthly sales transaction end
 
 
 
