@@ -214,7 +214,7 @@ class FinancialStatementController extends Controller
         // ])->whereNull('account_id')->sum('at_amount');
         $profitbeforetax = $totalincome - $totalexpense - $totalsalaryexp - $totaladjustexpense - $totaldepreciation - $totaladjustliability - $refundincomes;
         $vatprovision =   $totaladdnewvat + $incomevattotal - $rcvvattotal - $totaladdassetvat;
-//        $profitaftertax = $profitbeforetax - $taxprovision - $vatprovision-$totaldividend-$revenuereserve;
+        //        $profitaftertax = $profitbeforetax - $taxprovision - $vatprovision-$totaldividend-$revenuereserve;
         $retainedearning = $profitbeforetax - $taxprovision - $totalsalarytax - $vatprovision-$totaldividend-$revenuereserve + $reverserevenue;
         $vatreceive = DB::table('accounts')
             ->select('transactions.*','accounts.account_type','accounts.account_name')
@@ -483,15 +483,29 @@ class FinancialStatementController extends Controller
             ['table_type', '=', 'Expense'],
             ['branch_id','=', $branch_id]
         ])->whereNotNull('employee_id')->sum('at_amount');
-        $incomebank = Transaction::where([
+        $incomebankNotRefund = Transaction::where([
             ['t_date', '<=', $toDate],
             ['payment_type', '=', 'Bank'],
             ['table_type', '=', 'Income'],
             ['branch_id','=', $branch_id]
-        ])->sum('amount');
+        ])
+        ->where('transaction_type','!=',  'Refund')
+        ->sum('amount');
+
+        $incomebankRefund = Transaction::where([
+            ['t_date', '<=', $toDate],
+            ['payment_type', '=', 'Bank'],
+            ['table_type', '=', 'Income'],
+            ['branch_id','=', $branch_id]
+        ])
+        ->where('transaction_type', 'Refund')
+        ->sum('amount');
+
+        $incomebank = $incomebankNotRefund - $incomebankRefund;
+
         $totalbank = $totalassetsbank + $totalliabilitybank + $totalequitybank + $incomebank - $expensebank - $expensesalarybank;
-//        for bank calculation end
-//        withdraw calculation
+        //        for bank calculation end
+        //        withdraw calculation
         $withdrawbalance = DB::table('transactions')
             ->select('transactions.*','accounts.account_type','accounts.account_name')
             ->join('accounts','accounts.id','=','transactions.account_id')
@@ -500,9 +514,9 @@ class FinancialStatementController extends Controller
                 ['transactions.table_type', '=', 'OwnerEquity'],
                 ['transactions.branch_id', '=', $branch_id],
                 ['accounts.account_name', '=', 'Withdraw']
-            ])->sum('at_amount');
-//        withdraw calculation end
- //      Account  receivables calculation
+                    ])->sum('at_amount');
+        //        withdraw calculation end
+        //      Account  receivables calculation
         $receivablereceipttotal = 0;
         $receivablepaymentstotal = 0;
         $receivables = DB::table('transactions')
@@ -736,7 +750,7 @@ class FinancialStatementController extends Controller
             ->with('retainedearning', $retainedearning)
             ->with('pdfhead',$pdfhead);
 
-        }else{
+    }else{
 			//query without date
 			
 			
@@ -916,7 +930,7 @@ class FinancialStatementController extends Controller
         // ])->whereNull('account_id')->sum('at_amount');
         $profitbeforetax = $totalincome - $totalexpense - $totalsalaryexp - $totaladjustexpense - $totaldepreciation - $totaladjustliability -  $refundincomes;
         $vatprovision =   $totaladdnewvat + $incomevattotal - $rcvvattotal - $totaladdassetvat;
-//        $profitaftertax = $profitbeforetax - $taxprovision - $vatprovision-$totaldividend-$revenuereserve;
+        //        $profitaftertax = $profitbeforetax - $taxprovision - $vatprovision-$totaldividend-$revenuereserve;
         $retainedearning = $profitbeforetax - $taxprovision - $totalsalarytax - $vatprovision-$totaldividend-$revenuereserve + $reverserevenue;
         $vatreceive = DB::table('accounts')
             ->select('transactions.*','accounts.account_type','accounts.account_name')
@@ -944,7 +958,7 @@ class FinancialStatementController extends Controller
             $eexpvattotal = $eexpvat->sumamount + $eexpvattotal;
         }
         $totalvatreceivable =$addnewassetvat + $eexpvattotal - $vatreceive;
-//        $totalvatreceivable = $vatreceive - $rcvvattotal;
+        //        $totalvatreceivable = $vatreceive - $rcvvattotal;
         $vatpaid = DB::table('accounts')
             ->select('transactions.*','accounts.account_type','accounts.account_name')
             ->join('transactions','transactions.account_id','=','accounts.id')
@@ -971,8 +985,8 @@ class FinancialStatementController extends Controller
             $incvattotal = $incvat->sumamount + $incvattotal;
         }
         $totalvatpayable =  $incvattotal  + $addnewvat - $vatpaid;
-//        $totalvatreceivable =  $incomevattotal - $vatpaid;
-//        {{ TAX PROVISION CALCULATION}}
+        //        $totalvatreceivable =  $incomevattotal - $vatpaid;
+        //        {{ TAX PROVISION CALCULATION}}
         $totaltaxprovision  = 0;
         $taxprovisions= DB::table('transactions')
             ->leftJoin('accounts', 'transactions.account_id', '=', 'accounts.id')
@@ -985,8 +999,8 @@ class FinancialStatementController extends Controller
             $taxprovision->amount;
             $totaltaxprovision = $taxprovision->amount + $totaltaxprovision;
         }
-//        {{ TAX PROVISION CALCULATION}}
-//       {{$initialcurrentasset calculation}}
+        //        {{ TAX PROVISION CALCULATION}}
+        //       {{$initialcurrentasset calculation}}
         $adjusttotal = 0;
         $initialtotal = 0;
         $initialcurrentassets = Transaction::selectRaw('SUM(t_amount) as sumamount, account_id')->where([
@@ -1167,14 +1181,31 @@ class FinancialStatementController extends Controller
             ['table_type', '=', 'Expense'],
             ['branch_id','=', $branch_id]
         ])->whereNotNull('employee_id')->sum('at_amount');
-        $incomebank = Transaction::where([
+        
+
+        $incomebankNotRefund = Transaction::where([
             ['payment_type', '=', 'Bank'],
             ['table_type', '=', 'Income'],
             ['branch_id','=', $branch_id]
-        ])->sum('amount');
+        ])
+        ->where('transaction_type','!=', 'Refund')
+        ->sum('amount');
+
+        $incomebankRefund = Transaction::where([
+            ['payment_type', '=', 'Bank'],
+            ['table_type', '=', 'Income'],
+            ['branch_id','=', $branch_id]
+        ])
+        ->where('transaction_type', 'Refund')
+        ->sum('amount');
+
+        $incomebank = $incomebankNotRefund - $incomebankRefund;
+
+
+
         $totalbank = $totalassetsbank + $totalliabilitybank + $totalequitybank + $incomebank - $expensebank - $expensesalarybank;
-//        for bank calculation end
-//        withdraw calculation
+        //        for bank calculation end
+        //        withdraw calculation
         $withdrawbalance = DB::table('transactions')
             ->select('transactions.*','accounts.account_type','accounts.account_name')
             ->join('accounts','accounts.id','=','transactions.account_id')
@@ -1183,8 +1214,8 @@ class FinancialStatementController extends Controller
                 ['transactions.branch_id', '=', $branch_id],
                 ['accounts.account_name', '=', 'Withdraw']
             ])->sum('at_amount');
-//        withdraw calculation end
- //      Account  receivables calculation
+        //        withdraw calculation end
+        //      Account  receivables calculation
         $receivablereceipttotal = 0;
         $receivablepaymentstotal = 0;
         $receivables = DB::table('transactions')

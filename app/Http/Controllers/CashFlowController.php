@@ -289,13 +289,7 @@ class CashFlowController extends Controller
             $fromDate = $request->input('fromDate');
             $toDate   = $request->input('toDate');
 
-            // $incomes = Transaction::selectRaw('SUM(amount) as sumamount, account_id')->where([
-            //     ['t_date', '>=', $fromDate],
-            //     ['t_date', '<=', $toDate],
-            //     ['table_type','=', 'Income'],
-            //     ['branch_id','=', $branch_id]
-            // ])->whereIn('transaction_type', [ 'Due','Current','Advance Adjust'])->groupBy('account_id')->get();
-
+            
             $incomes = Transaction::select('account_id',
                     DB::raw('SUM(CASE WHEN transaction_type = "Due" THEN amount ELSE 0 END) as total_due'),
                     DB::raw('SUM(CASE WHEN transaction_type = "Current" THEN amount ELSE 0 END) as total_current'),
@@ -309,12 +303,27 @@ class CashFlowController extends Controller
                     ['branch_id','=', $branch_id]
                 ])->groupBy('account_id')->get();
 
-        }else{
-            // $incomes = Transaction::selectRaw('SUM(amount) as sumamount, account_id')->where([
-            //     ['table_type','=', 'Income'],
-            //     ['branch_id','=', $branch_id]
-            // ])->whereIn('transaction_type', [ 'Due','Current','Advance Adjust'])->groupBy('account_id')->get();
 
+                $preincomes = Transaction::select('account_id',
+                            DB::raw('SUM(CASE WHEN transaction_type = "Due" THEN amount ELSE 0 END) as total_due'),
+                            DB::raw('SUM(CASE WHEN transaction_type = "Current" THEN amount ELSE 0 END) as total_current'),
+                            DB::raw('SUM(CASE WHEN transaction_type = "Advance Adjust" THEN amount ELSE 0 END) as total_adv'),
+                            DB::raw('SUM(CASE WHEN transaction_type = "Refund" THEN amount ELSE 0 END) as total_refund'),
+                            DB::raw('SUM(CASE WHEN transaction_type = "Due" THEN amount ELSE 0 END) + SUM(CASE WHEN transaction_type = "Current" THEN amount ELSE 0 END) + SUM(CASE WHEN transaction_type = "Advance Adjust" THEN amount ELSE 0 END) - SUM(CASE WHEN transaction_type = "Refund" THEN amount ELSE 0 END) as sumamount, account_id')
+                        )->where([
+                            ['t_date', '<', $fromDate],
+                            ['table_type','=', 'Income'],
+                            ['branch_id','=', $branch_id]
+                        ])->whereIn('payment_type', [ 'Cash','Bank'])
+                            ->groupBy('account_id')->get();
+            
+                        foreach ($preincomes as $preincome){
+                                $preincome->sumamount;
+                                $pretotalincome = $preincome->sumamount + $pretotalincome;
+                            }
+
+        }else{
+            
             $incomes = Transaction::select('account_id',
                     DB::raw('SUM(CASE WHEN transaction_type = "Due" THEN amount ELSE 0 END) as total_due'),
                     DB::raw('SUM(CASE WHEN transaction_type = "Current" THEN amount ELSE 0 END) as total_current'),
