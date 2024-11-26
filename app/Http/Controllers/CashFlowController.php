@@ -301,7 +301,7 @@ class CashFlowController extends Controller
                     ['t_date', '<=', $toDate],
                     ['table_type','=', 'Income'],
                     ['branch_id','=', $branch_id]
-                ])->groupBy('account_id')->get();
+                ])->whereIn('payment_type', [ 'Cash','Bank'])->groupBy('account_id')->get();
 
 
                 $preincomes = Transaction::select('account_id',
@@ -333,7 +333,7 @@ class CashFlowController extends Controller
                 )->where([
                     ['table_type','=', 'Income'],
                     ['branch_id','=', $branch_id]
-                ])->groupBy('account_id')->get();
+                ])->whereIn('payment_type', [ 'Cash','Bank'])->groupBy('account_id')->get();
         }
 
 
