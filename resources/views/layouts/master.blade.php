@@ -60,6 +60,10 @@
     @if(Auth::user()->branch_id == '6')   
     <img class="" src="{{ asset('img/6.png') }}" height="50px" width="200px" style="margin-left: -12px;" alt="Logo Image">
     @endif
+
+    @if(Auth::user()->branch_id == '8')   
+    <img class="" src="{{ asset('img/8.jpg') }}" height="50px" width="200px" style="margin-left: -12px;" alt="Logo Image">
+    @endif
     
     </a>
     <!-- Sidebar toggle button--><a class="app-sidebar__toggle" href="#" data-toggle="sidebar" aria-label="Hide Sidebar"></a>

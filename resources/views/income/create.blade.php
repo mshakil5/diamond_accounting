@@ -73,7 +73,7 @@
                                 </div>
                                 <div>
                                     <label for="tax_amount">Vat Amount</label>
-                                    <input type="number"  id="tax_amount" name="tax_amount" class="form-control">
+                                    <input type="number"  id="tax_amount" name="tax_amount" class="form-control" step="any" min="0">
                                 </div>
                                 
                                 <div>
