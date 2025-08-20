@@ -90,7 +90,7 @@
                                     </div>
                                     <div id="taxamt">
                                         <label for="tax_amount">Tax Amount</label>
-                                        <input type="number"  id="tax_amount" name="tax_amount" class="form-control">
+                                        <input type="number"  id="tax_amount" name="tax_amount" class="form-control" step="any" min="0">
                                     </div>
 
 
@@ -299,16 +299,11 @@
 
             $("#amount, #tax_amount").keyup(function(){
                 var total=0;
-                var amount = Number($("#amount").val());
-                var tax_amount = Number($("#tax_amount").val());
+                var amount = parseFloat($("#amount").val()) || 0;
+                var tax_amount = parseFloat($("#tax_amount").val()) || 0;
                 var after_tax_amount = amount - tax_amount;
-                if(tax_amount == ''){
-                    $('#tax_amount').val('');
-                    $('#after_tax_amount').val(amount);
-                }else{
-                    $('#tax_amount').val(tax_amount);
-                    $('#after_tax_amount').val(after_tax_amount.toFixed(2));
-                }
+                
+                $('#after_tax_amount').val(after_tax_amount.toFixed(2));
             });
             //calculation end
 
