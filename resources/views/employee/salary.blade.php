@@ -448,16 +448,12 @@
                 if (data.amount == null && data.payment_type == "Account Payable" && data.t_amount !== null) {
                     $("#trandiv").hide();
                     $("#amtdiv").hide();
-                    $("#taxp").hide();
                     $("#netamt").hide();
-                    $("#taxamt").show();
                     $("#payment_type").html("<option value='Account Payable'>Account Payable</option>");
                 }else{
                     $("#trandiv").show();
                     $("#amtdiv").show();
                     $("#netamt").show();
-                    $("#taxp").hide();
-                    $("#taxamt").hide();
                 }
 
 
