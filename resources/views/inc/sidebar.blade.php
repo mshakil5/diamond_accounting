@@ -3,7 +3,7 @@
     <div class="app-sidebar__user"><img class="app-sidebar__user-avatar" src="{{ asset('img/admin.jpg') }}" alt="User Image">
         <div>
             <p class="app-sidebar__user-name">{{auth()->user()->name}}</p>
-            <p class="app-sidebar__user-designation"> </p>
+            <p class="app-sidebar__user-designation">User </p>
         </div>
     </div>
     <ul class="app-menu">
