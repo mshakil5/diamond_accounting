@@ -12,7 +12,7 @@
     <meta property="og:title" content="Vali - Free Bootstrap 4 admin theme">
     <meta property="og:description" content="Vali is a responsive and free admin theme built with Bootstrap 4, SASS and PUG.js. It's fully customizable and modular.">
     <title>
-        @yield('title')
+        @yield('title') | Diamonds Accounting Software
     </title>
     <meta charset="utf-8">
 
