@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\InvoiceController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\ShareholdersController;
 
@@ -207,6 +208,14 @@ Route::post('employeeTax_ledger_search','App\Http\Controllers\LedgerController@g
     Route::get('/ledger/shareholder-capital-ledger/{id}', [ShareholdersController::class, 'getShareholderCapitalLedger'])->name('shareholderCapitalLedger');
 
     Route::post('/ledger/shareholder-capital-ledger/{id}', [ShareholdersController::class, 'getShareholderCapitalLedgerSearch'])->name('shareholderCapitalLedgerSearch');
+
+    Route::get('/invoices', [InvoiceController::class, 'index'])->name('admin.invoices');
+    Route::post('/invoices', [InvoiceController::class, 'store']);
+    Route::get('/invoices/{id}/edit', [InvoiceController::class, 'edit']);
+    Route::post('/invoices-update', [InvoiceController::class, 'update']);
+
+
+
 
     
 
