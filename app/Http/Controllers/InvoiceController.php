@@ -8,6 +8,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\DB;
 use App\Models\InvoiceDetail;
+use Yajra\DataTables\Facades\DataTables;
 
 class InvoiceController extends Controller
 {
@@ -17,15 +18,40 @@ class InvoiceController extends Controller
         $this->middleware('auth:admin');
     }
 
-    public function index()
+    public function index(Request $request)
     {
+        if ($request->ajax()) {
+            $query = Invoice::with(['details'])->latest();
+            $filter = $request->status_filter;
+            $invoices = $query->get();
+            return DataTables::of($invoices)
+                ->addIndexColumn()
+                ->addColumn('date', fn($row) => date('d-m-Y', strtotime($row->invoice_date)))
+                ->addColumn('bill_to', function($row) {
+                    return strip_tags($row->bill_to); 
+                })
+                ->addColumn('action', function($row) {
+                    $dropdown = '<div class="btn-group">
+                                    <button type="button" class="btn btn-sm btn-secondary dropdown-toggle" data-toggle="dropdown">
+                                        Actions
+                                    </button>
+                                    <div class="dropdown-menu">
+                                        <a href="'.route('invoices.show', $row->id).'" class="dropdown-item view" target="_blank">
+                                            <i class="fas fa-eye"></i> View
+                                        </a>
+                                    </div>
+                                </div>';
+                    return $dropdown;
+                })
+                ->rawColumns(['action', 'bill_to']) 
+                ->make(true);
+
+        }
+
         $branch_id = auth()->user()->branch_id;
-        // dd($branch_id);
 
         $prefix = 'D' . date('Ym');
-
         $latest = Invoice::orderBy('id', 'desc')->first();
-
         if ($latest) {
             $lastNumber = (int) Str::after($latest->invoice_number, '-');
             $nextNumber = $lastNumber + 1;

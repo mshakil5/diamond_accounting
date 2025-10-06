@@ -186,14 +186,14 @@
                             <div class="container">
 
 
-                            <table class="table table-bordered table-hover">
+                            <table class="table table-bordered table-hover" id="example1">
                                 <thead>
                                 <tr>
-                                    <th>Sl</th>
-                                    <th>Name</th>
-                                    <th>Email</th>
-                                    <th>Phone</th>
-                                    {{-- <th>Address</th> --}}
+                                    <th>Date</th>
+                                    <th>Inv. No.</th>
+                                    <th>Invoice to</th>
+                                    <th>Invoice For</th>
+                                    <th>Amount</th>
                                     @if (auth()->user()->user_type == 11 || auth()->user()->user_type == 2)
                                     <th>Action</th>
                                     @endif
@@ -206,7 +206,6 @@
                                 </tbody>
                             </table>
 
-                            {{-- {{$data->links()}} --}}
 
                             </div>
                         </div>
@@ -342,6 +341,46 @@ $(document).ready(function () {
         $('#discount_amount').val(discountAmount.toFixed(2));
         $('#net_amount').val(netTotal.toFixed(2));
     }
+
+
+    let ajaxUrl = "{{ route('admin.invoices') }}";
+
+    var table = $('#example1').DataTable({
+        processing: true,
+        serverSide: true,
+        ajax: {
+            url: ajaxUrl + window.location.search,
+            type: "GET",
+            data: function (d) {
+                // d.status_filter = $('#statusFilter').val();
+                // d.client_filter = $('#clientFilter').val();
+            },
+            error: function (xhr, status, error) {
+                console.error(xhr.responseText);
+            }
+        },
+        columns: [
+            // {data: 'DT_RowIndex', name: 'DT_RowIndex', orderable: false, searchable: false},
+            {data: 'date', name: 'date', orderable: false},
+            {data: 'invoice_number', name: 'invoice_number', orderable: false},
+            {data: 'bill_to', name: 'bill_to'},
+            {data: 'invoice_for', name: 'invoice_for'},
+            {data: 'net_amount', name: 'net_amount', render: function(data) {
+                return '£' + parseFloat(data).toFixed(0);
+            }},
+            {data: 'action', name: 'action', orderable: false, searchable: false},
+        ],
+        responsive: true,
+        lengthChange: false,
+        autoWidth: false,
+    });
+
+    function reloadTable() {
+        table.ajax.reload(null, false);
+    }
+
+
+
 
 });
 </script>
