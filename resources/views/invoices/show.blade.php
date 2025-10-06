@@ -59,7 +59,7 @@
                     <tr>
                         <td style="width:50%;">
                             <div style="text-align: left;">
-                                <img src="{{ asset('logo.png') }}" width="120px" style="display:inline-block;background-color: black;" />
+                                <img src="{{ asset('logo.png') }}" width="120px" style="display:inline-block;" />
                             </div>
                         </td>
                         <td style="width:50%;">
@@ -198,7 +198,10 @@
                     <tbody>
                         <tr>
                             <td style="width: 50%; text-align:left;">
-                                
+                                39 Monkgate,
+                                York,
+                                YO31 7pb,
+                                Mob -07340631122
                             </td>
                             <td style="width: 50%; text-align:right;">
                                 
