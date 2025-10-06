@@ -15,6 +15,14 @@ use App\Http\Controllers\ShareholdersController;
 |
 */
 
+Route::get('/clear', function () {
+    Artisan::call('cache:clear');
+    Artisan::call('config:clear');
+    Artisan::call('route:clear');
+    Artisan::call('view:clear');
+    return "Cache, config, route, and view cleared!";
+});
+
 Route::get('/', function () {
     return view('welcome');
 });
