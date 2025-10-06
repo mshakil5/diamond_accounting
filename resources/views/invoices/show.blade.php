@@ -59,7 +59,7 @@
                     <tr>
                         <td style="width:50%;">
                             <div style="text-align: left;">
-                                <img src="{{ asset('logo.png') }}" width="120px" style="display:inline-block;" />
+                                <img src="{{ asset('dlogo.png') }}" width="120px" style="display:inline-block;" />
                             </div>
                         </td>
                         <td style="width:50%;">
