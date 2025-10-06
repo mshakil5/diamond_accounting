@@ -200,8 +200,8 @@
                             <td style="width: 50%; text-align:left;">
                                 39 Monkgate,
                                 York,
-                                YO31 7pb,
-                                Mob -07340631122
+                                YO31 7PB,
+                                Mob: 07340631122
                             </td>
                             <td style="width: 50%; text-align:right;">
                                 

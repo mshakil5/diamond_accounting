@@ -136,8 +136,10 @@
 
 </main>
 <!-- Essential javascripts for application to work-->
-<script src="{{ asset('assets/js/jquery-3.3.1.min.js') }}"></script>
-<script src="{{URL::to('assets/vendor/bootstrap/js/bootstrap.bundle.min.js')}}"></script>
+{{-- <script src="{{ asset('assets/js/jquery-3.3.1.min.js') }}"></script> --}}
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+{{-- <script src="{{URL::to('assets/vendor/bootstrap/js/bootstrap.bundle.min.js')}}"></script> --}}
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 <script src="{{URL::to('assets/js/grasp_mobile_progress_circle-1.0.0.min.js')}}"></script>
 <script src="{{URL::to('assets/vendor/jquery.cookie/jquery.cookie.js')}}"> </script>
 <script src="{{URL::to('assets/vendor/chart.js/Chart.min.js')}}"></script>

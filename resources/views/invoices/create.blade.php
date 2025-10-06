@@ -1,5 +1,10 @@
 @extends('layouts.master')
 @section('content')
+<style>
+    .note-editable p {
+        margin: 0;
+    }
+</style>
 <link href="https://cdn.jsdelivr.net/npm/summernote@0.9.0/dist/summernote.min.css" rel="stylesheet">
     <div id="addThisFormContainer">
         <div class="row">
@@ -191,7 +196,7 @@
                                 <tr>
                                     <th>Date</th>
                                     <th>Inv. No.</th>
-                                    <th>Invoice to</th>
+                                    <th>Invoice To</th>
                                     <th>Invoice For</th>
                                     <th>Amount</th>
                                     @if (auth()->user()->user_type == 11 || auth()->user()->user_type == 2)
@@ -218,22 +223,41 @@
 @endsection
 @section('scripts')
 <script src="https://cdn.jsdelivr.net/npm/summernote@0.9.0/dist/summernote.min.js"></script>
+{{-- <script src="https://cdn.jsdelivr.net/npm/summernote@0.8.20/dist/summernote-lite.min.js"></script> --}}
 
 <script>
 $(document).ready(function () {
 
+    // function initSummernote(selector = '.summernote') {
+    //     $(selector).summernote({
+    //         height: 80,
+    //     });
+    // }
+    // initSummernote();
+
     function initSummernote(selector = '.summernote') {
         $(selector).summernote({
             height: 80,
+            lineHeights: ['0.5', '1.0', '1.2', '1.5'],
             toolbar: [
                 ['style', ['bold', 'italic', 'underline', 'clear']],
                 ['font', ['fontsize']],
                 ['color', ['color']],
                 ['para', ['ul', 'ol', 'paragraph']]
-            ]
+            ],
+            callbacks: {
+                onChange: function(contents) {
+                    contents = contents.replace(/<br><br>/g, '<br>');
+                    $(this).val(contents);
+                }
+            }
         });
+
+        // Remove <p> default margin
+        $('.note-editable p').css('margin', '0');
     }
     initSummernote();
+
 
     $("#addThisFormContainer").hide();
     $("#newBtn").on("click", function() {

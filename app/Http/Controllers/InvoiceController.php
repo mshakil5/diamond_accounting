@@ -34,11 +34,11 @@ class InvoiceController extends Controller
                 ->addColumn('action', function($row) {
                     $dropdown = '<div class="btn-group">
                                     <button type="button" class="btn btn-sm btn-secondary dropdown-toggle" data-toggle="dropdown">
-                                        Actions
+                                        Action
                                     </button>
                                     <div class="dropdown-menu">
                                         <a href="'.route('invoices.show', $row->id).'" class="dropdown-item view" target="_blank">
-                                            <i class="fas fa-eye"></i> View
+                                            <i class="fa fa-eye"></i> View
                                         </a>
                                     </div>
                                 </div>';
