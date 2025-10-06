@@ -40,6 +40,9 @@ class InvoiceController extends Controller
                                         <a href="'.route('invoices.show', $row->id).'" class="dropdown-item view" target="_blank">
                                             <i class="fa fa-eye"></i> View
                                         </a>
+                                        <a href="'.route('invoices.download', $row->id).'" class="dropdown-item download" target="_blank">
+                                            <i class="fa fa-download"></i> Download
+                                        </a>
                                     </div>
                                 </div>';
                     return $dropdown;
@@ -154,6 +157,16 @@ class InvoiceController extends Controller
 
 
         return view('invoices.show', compact('invoice','paidImageBase64'));
+    }
+
+    // invoice download as pdf
+    public function invoiceDownload($id)
+    {
+        $invoice = Invoice::with(['details'])->findOrFail($id);
+
+        $pdf = \PDF::loadView('invoices.show', compact('invoice'));
+        $filename = 'Invoice_' . $invoice->invoice_number . '.pdf';
+        return $pdf->download($filename);
     }
 
 

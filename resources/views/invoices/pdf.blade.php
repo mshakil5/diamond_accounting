@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+      @php
+          use Carbon\Carbon;
+      @endphp
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="x-ua-compatible" content="ie=edge">
+    <title>Diamonds Group - Invoice</title>
+    <style>
+        body {
+            font-family: Arial, Helvetica;
+            font-size: 12px;
+            margin: 0;
+            padding: 20px;
+        }
+        .text-center {
+            text-align: center;
+        }
+        .text-right {
+            text-align: right;
+        }
+        .invoice-body {
+            max-width: 794px;
+            margin: 0 auto;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        .table td, .table th {
+            padding: 8px;
+        }
+        .no-print {
+            display: none;
+        }
+        @media print {
+            .no-print {
+                display: none !important;
+            }
+            body {
+                padding: 0;
+            }
+        }
+    </style>
+</head>
+<body>
+    <section class="invoice">
+        <div class="invoice-body">
+            <br>
+            <br>
+            <br>
+            <br>
+            <br>
+            <br>
+            <table>
+                <tbody>
+                    <tr>
+                        <td style="width:50%;">
+                            <div style="text-align: left;">
+                                <img src="{{ public_path('dlogo.png') }}" width="120px" style="display:inline-block;" />
+                            </div>
+                        </td>
+                        <td style="width:50%;">
+                            <div style="text-align: right;">
+                                <h1 style="font-size: 30px; color:blue; margin: 0;">INVOICE</h1>
+                            </div>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <br><br>
+            <br><br>
+            <br><br>
+
+            <table>
+                <tbody>
+                    <tr>
+                        <td style="width:40%;">
+                            <div>
+                                <h5 style="font-size: 12px;text-align: left; line-height: 10px;">Bill To</h5>
+                                {!! $invoice->bill_to !!}                          
+                            </div>
+                        </td>
+                        <td style="width:30%; text-align: center; vertical-align: middle;">
+                            <div>
+                                <p style="font-size: 12px; margin: 5px; line-height: 10px; font-weight: bold;">
+                                    Bill For: {{ $invoice->invoice_for }}  
+                                </p>
+                            </div>
+                        </td>
+                        <td style="width:30%;">
+                            <div style="text-align: right;">
+                                <p style="font-size: 12px; margin: 5px;text-align: right;line-height: 10px;">Invoice No: {{ $invoice->invoice_number }}</p>
+                                <p style="font-size: 12px; margin: 5px;text-align: right;line-height: 10px;">Date: {{ Carbon::parse($invoice->invoice_date)->format('d/m/Y') }}</p>
+                            </div>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+            <br>
+
+            <div class="row overflow">
+                <table class="table" style="border: 1px solid #dee2e6;">
+                    <thead>
+                        <tr>
+                            <th style="border: 1px solid #dee2e6; text-align:center;">Description</th>
+                            <th style="border: 1px solid #dee2e6; text-align:center;">Period</th>
+                            <th style="border: 1px solid #dee2e6; text-align:center; width:15%">Amount</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                      @foreach($invoice->details as $index => $item)
+                        <tr>
+                          <td style="border: 1px solid #dee2e6; text-align:center;">{!! $item->description !!}</td>
+                          <td style="border: 1px solid #dee2e6; text-align:center;">{{ $item->period }}</td>
+                          <td style="border: 1px solid #dee2e6; text-align:right;">£{{ number_format($item->unit_price, 2) }}</td>
+                        </tr>
+                      @endforeach
+                    </tbody>
+                </table>
+
+                <table style="margin-top: 20px;">
+                    <tbody>
+                        <tr>
+                            <td style="width: 20%">&nbsp;</td>
+                            <td style="width: 25%">&nbsp;</td>
+                            <td style="width: 25%">&nbsp;</td>
+                            <td>Subtotal</td>
+                            <td style="text-align:right;padding-right: 8px;">£{{ number_format($invoice->subtotal, 2) }}</td>
+                        </tr>
+                        @if($invoice->discount_percent)
+                        <tr>
+                            <td style="width: 20%">&nbsp;</td>
+                            <td style="width: 25%">&nbsp;</td>
+                            <td style="width: 25%">&nbsp;</td>
+                            <td>Discount ({{ $invoice->discount_percent }}%)</td>
+                            <td style="text-align:right;padding-right: 8px;">£{{ number_format($invoice->discount_amount, 2) }}</td>
+                        </tr>
+                        @endif
+                        @if($invoice->vat_amount)
+                        <tr>
+                            <td>&nbsp;</td>
+                            <td>&nbsp;</td>
+                            <td>&nbsp;</td>
+                            <td>VAT</td>
+                            <td style="text-align:right;padding-right: 8px;">£{{ number_format($invoice->vat_amount, 2) }}</td>
+                        </tr>
+                        @else
+                         <tr>
+                            <td>&nbsp;</td>
+                            <td>&nbsp;</td>
+                            <td>&nbsp;</td>
+                            <td>VAT</td>
+                            <td style="text-align:right;padding-right: 8px;">£0.00</td>
+                        </tr>
+                        @endif
+                        <tr>
+                            <td></td>
+                            <td></td>
+                            <td>&nbsp;</td>
+                            <td>Total</td>
+                            <td style="text-align:right;padding-right: 8px;">£{{ number_format($invoice->net_amount, 2) }}</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            
+            <br><br>
+            <br><br>
+            <br><br>
+
+            @if ($invoice->status == 2)
+            <table>
+                <tr>
+                    <td style="width:60%; vertical-align: top;">
+                    </td>
+                    <td style="width:40%; text-align:right; vertical-align: top;">
+                            <img src="{{ $paidImageBase64 }}" width="120px" />
+                    </td>
+                </tr>
+            </table>
+            @endif
+
+
+
+            @if ($invoice->description)
+            <div style="position: fixed; bottom: 110px; left: 50%; transform: translateX(-50%); max-width: 794px; width: 100%; padding: 0 20px; text-align:left;">
+                <p style="margin: 0;">{!! $invoice->description !!}</p>
+            </div>
+            @endif
+            <div style="position: fixed; bottom: 0; left: 50%; transform: translateX(-50%); max-width: 794px; width: 100%; padding: 10px 20px; border-top: 1px solid #ddd;">
+
+                <table>
+                    <tbody>
+                        <tr>
+                            <td style="width: 50%; text-align:left;">
+                                39 Monkgate,
+                                York,
+                                YO31 7PB,
+                                Mob: 07340631122
+                            </td>
+                            <td style="width: 50%; text-align:right;">
+                                
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </section>
+    <script>
+        window.onload = function() {
+            setTimeout(function() {
+                window.print();
+            }, 1000);
+        };
+    </script>
+</body>
+</html>
