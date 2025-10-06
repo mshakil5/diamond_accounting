@@ -6,6 +6,8 @@ use App\Models\Invoice;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Str;
+use Illuminate\Support\Facades\DB;
+use App\Models\InvoiceDetail;
 
 class InvoiceController extends Controller
 {
@@ -35,4 +37,97 @@ class InvoiceController extends Controller
 
         return view('invoices.create', compact('invoiceNumber'));
     }
+
+    public function store(Request $request)
+    {
+        $request->validate([
+            'invoice_date' => 'required|date',
+            'invoice_for' => 'required|string|max:255',
+            'bank_information' => 'nullable|string',
+            'vat_percent' => 'nullable|numeric|min:0|max:100',
+            'discount_percent' => 'nullable|numeric|min:0|max:100',
+            'subtotal' => 'nullable|numeric|min:0',
+            'net_amount' => 'nullable|numeric|min:0',
+            'description.*' => 'nullable|string',
+            'period.*' => 'nullable|string',
+            'price.*' => 'nullable|numeric|min:0',
+        ]);
+
+
+        try {
+            // 🔹 Auto-generate Invoice Number
+            $invoiceNumber = 'INV-' . date('Ymd') . '-' . strtoupper(Str::random(4));
+
+            // 🔹 Create main invoice record
+            $invoice = Invoice::create([
+                'invoice_number'   => $request->invoice_number,
+                'invoice_date'     => $request->invoice_date,
+                'invoice_for'      => $request->invoice_for,
+                'branch_id'        => auth()->user()->branch_id,
+                'bill_to'          => $request->bill_to ?? 0,
+                'vat_amount'       => $request->vat_amount ?? 0,
+                'subtotal'         => $request->subtotal ?? 0,
+                'discount_percent' => $request->discount_percent ?? 0,
+                'discount_amount'  => $request->discount_amount ?? 0,
+                'net_amount'       => $request->net_amount ?? 0,
+                'description'      => $request->bank_information,
+                'created_by'       => auth()->id(),
+                'status'           => 1, // Pending by default
+            ]);
+
+            // 🔹 Create invoice details
+            if ($request->has('description')) {
+                foreach ($request->description as $index => $desc) {
+                    $period = $request->period[$index] ?? '';
+                    $unitPrice = $request->price[$index] ?? 0;
+                    $vatPercent = $invoice->vat_percent ?? 0;
+                    $vatAmount = ($unitPrice * $vatPercent) / 100;
+                    $totalWithVat = $unitPrice + $vatAmount;
+
+                    InvoiceDetail::create([
+                        'invoice_id'    => $invoice->id,
+                        'description'   => $desc,
+                        'period'        => $period,
+                        'unit_price'    => $request->price[$index] ?? 0,
+                        'total_inc_vat' => $request->price[$index] ?? 0,
+                        'status'        => 1,
+                        'created_by'    => auth()->id(),
+                    ]);
+                }
+            }
+
+
+            // 🔹 Return success with PDF link (optional)
+            return response()->json([
+                'message'  => '<div class="alert alert-success">Invoice created successfully!</div>',
+                'redirect' => route('invoices.show', $invoice->id) // or PDF view link
+            ]);
+
+        } catch (\Throwable $e) {
+            DB::rollBack();
+
+            return response()->json([
+                'message' => '<div class="alert alert-danger">Something went wrong: ' . $e->getMessage() . '</div>'
+            ], 500);
+        }
+
+    }
+
+    public function show($id)
+    {
+        $invoice = Invoice::with(['details'])->findOrFail($id);
+
+        $paidImagePath = public_path('paidbg.png');
+        if (file_exists($paidImagePath)) {
+            $paidImageData = base64_encode(file_get_contents($paidImagePath));
+            $paidImageBase64 = 'data:image/png;base64,' . $paidImageData;
+        } else {
+            $paidImageBase64 = null;
+        }
+
+
+        return view('invoices.show', compact('invoice','paidImageBase64'));
+    }
+
+
 }

@@ -18,22 +18,22 @@
                                     <input type="hidden" class="form-control" id="codeid" name="codeid">
                                     
                                     <div class="row">
-                                        <div class="col-md-6">
+                                        <div class="col-md-3">
                                             <div class="form-group">
                                                 <label>Invoice Number</label>
                                                 <input type="text" class="form-control" id="invoice_number" name="invoice_number" value="{{$invoiceNumber}}" readonly>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <div class="form-group">
+                                                <label>Bill For <span class="text-danger">*</span></label>
+                                                <input type="text" class="form-control" id="invoice_for" name="invoice_for" required value="">
                                             </div>
                                         </div>
                                         <div class="col-md-3">
                                             <div class="form-group">
                                                 <label>Date <span class="text-danger">*</span></label>
                                                 <input type="date" class="form-control" id="invoice_date" name="invoice_date" required value="{{ date('Y-m-d') }}">
-                                            </div>
-                                        </div>
-                                        <div class="col-md-3">
-                                            <div class="form-group">
-                                                <label>Bill For <span class="text-danger">*</span></label>
-                                                <input type="text" class="form-control" id="invoice_for" name="invoice_for" required value="">
                                             </div>
                                         </div>
                                     </div>
@@ -62,21 +62,20 @@
                                                             <tr>
                                                                 <th>Description</th>
                                                                 <th width="20%">Period</th>
-                                                                <th width="10%">Price</th>
+                                                                <th width="15%">Price</th>
                                                                 <th width="5%">Action</th>
                                                             </tr>
                                                         </thead>
                                                         <tbody>
-
                                                             <tr>
                                                                 <td>
-                                                                    <textarea class="form-control description summernote" name="projects" required>  </textarea>
-                                                                </td>
-                                                                <td class="">
-                                                                    <input type="text" class="form-control period" name="period" value="" required>
+                                                                    <textarea class="form-control description summernote" name="description[]" required></textarea>
                                                                 </td>
                                                                 <td>
-                                                                    <input type="number" class="form-control unit_price" name="projects" min="0" step="0.01" value="" required>
+                                                                    <input type="text" class="form-control period" name="period[]" required>
+                                                                </td>
+                                                                <td>
+                                                                    <input type="number" class="form-control unit_price" name="price[]" min="0" step="0.01" required>
                                                                 </td>
                                                                 <td>
                                                                     <button type="button" class="btn btn-success" id="addCustomItemBtn">
@@ -84,10 +83,9 @@
                                                                     </button>
                                                                 </td>
                                                             </tr>
-
-
                                                         </tbody>
                                                     </table>
+
                                                 </div>
                                             </div>
                                         </div>
@@ -97,7 +95,7 @@
                                         <div class="col-md-6">
                                             <div class="form-group">
                                                 <label>Bank Information</label>
-                                                <textarea class="form-control summernote" id="description" name="description" rows="5">
+                                                <textarea class="form-control summernote" id="bank_information" name="bank_information" rows="5">
                                                 </textarea>
                                             </div>
                                         </div>
@@ -143,7 +141,7 @@
                                                 </div>
                                             </div>
                                         </div>
-                                        <div class="col-md-12">
+                                        <div class="col-md-12 d-none">
                                             <div class="form-group">
                                                 <label>Email Body</label>
                                                 <textarea class="form-control summernote" name="email_body">
@@ -181,7 +179,7 @@
             <div class="col-md-12">
                 <div class="card">
                     <div class="card-header">
-                        <h3> Shareholder Details</h3>
+                        <h3>All invoices</h3>
                     </div>
                     <div class="card-body">
                         <div class="row">
@@ -297,26 +295,22 @@ $(document).ready(function () {
         $('.summernote').summernote('code', '');
     }
 
-    $('#addCustomItemBtn').on('click', function() {
-        const newRow = `
+    $('#addCustomItemBtn').click(function() { 
+        addRowToInvoiceTable();
+    });
+
+    function addRowToInvoiceTable() {
+        const html = `
             <tr>
-                <td>
-                    <textarea class="form-control description summernote" name="description[]" required></textarea>
-                </td>
-                <td>
-                    <input type="text" class="form-control period" name="period[]" required>
-                </td>
-                <td>
-                    <input type="number" class="form-control unit_price" name="price[]" min="0" step="0.01" value="0" required>
-                </td>
-                <td>
-                    <button type="button" class="btn btn-sm btn-danger removeRow"><i class="fa fa-trash-o"></i></button>
-                </td>
+                <td><textarea class="form-control description summernote" name="description[]" required></textarea></td>
+                <td><input type="text" class="form-control period" name="period[]" required></td>
+                <td><input type="number" class="form-control unit_price" name="price[]" min="0" step="0.01" required></td>
+                <td><button type="button" class="btn btn-sm btn-danger removeRow"><i class="fa fa-trash-o"></i></button></td>
             </tr>
         `;
-        $('#invoiceItemsTable tbody').append(newRow);
-        initSummernote('.summernote'); 
-    });
+        $('#invoiceItemsTable tbody').append(html);
+        initSummernote('.summernote'); // reinit summernote
+    }
 
     $(document).on('click', '.removeRow', function() {
         $(this).closest('tr').remove();

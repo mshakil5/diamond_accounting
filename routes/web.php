@@ -214,6 +214,7 @@ Route::post('employeeTax_ledger_search','App\Http\Controllers\LedgerController@g
     Route::get('/invoices/{id}/edit', [InvoiceController::class, 'edit']);
     Route::post('/invoices-update', [InvoiceController::class, 'update']);
 
+    Route::get('/invoices/show/{id}', [InvoiceController::class, 'show'])->name('invoices.show');
 
 
 
