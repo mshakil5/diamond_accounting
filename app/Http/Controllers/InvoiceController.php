@@ -28,7 +28,8 @@ class InvoiceController extends Controller
                 ->addIndexColumn()
                 ->addColumn('date', fn($row) => date('d-m-Y', strtotime($row->invoice_date)))
                 ->addColumn('bill_to', function($row) {
-                    return strip_tags($row->bill_to); 
+                    $billTo = strip_tags($row->bill_to, '<br>');
+                    return nl2br($billTo);
                 })
                 ->addColumn('action', function($row) {
                     $dropdown = '<div class="btn-group">
