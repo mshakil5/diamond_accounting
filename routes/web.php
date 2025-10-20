@@ -4,6 +4,9 @@ use App\Http\Controllers\InvoiceController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\ShareholdersController;
 
+use Illuminate\Http\Request;
+
+
 /*
 |--------------------------------------------------------------------------
 | Web Routes
@@ -23,6 +26,22 @@ Route::get('/clear', function () {
     return "Cache, config, route, and view cleared!";
 });
 
+  
+
+// note
+Route::get('/_debug-myip', function (Request $request) {
+    return response()->json([
+        'request_ip'     => $request->ip(),
+        'request_ips'    => $request->ips(),   
+        'xff_header'     => $request->header('X-Forwarded-For'),
+        'remote_addr'    => $_SERVER['REMOTE_ADDR'] ?? null,
+        'all_headers'    => $request->headers->all(),
+    ]);
+});
+
+//note
+
+
 Route::get('/', function () {
     return view('welcome');
 });
@@ -41,12 +60,12 @@ Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name
 // Route::prefix('admin')->group(function(){
 
     // redirect page if login / not login
-    Route::get('/', 'App\Http\Controllers\Users\Admin\AdminController@index');
+    Route::get('/', 'App\Http\Controllers\Users\Admin\AdminController@index')->middleware('ip.whitelist');
 
 
     // admin login/register 
-    Route::get('/login', 'App\Http\Controllers\Auth\AdminLoginController@showLoginForm')->name('admin.login');
-    Route::post('/login', 'App\Http\Controllers\Auth\AdminLoginController@login')->name('admin.login.submit');
+    Route::get('/login', 'App\Http\Controllers\Auth\AdminLoginController@showLoginForm')->name('admin.login')->middleware('ip.whitelist');
+    Route::post('/login', 'App\Http\Controllers\Auth\AdminLoginController@login')->name('admin.login.submit')->middleware('ip.whitelist');
     Route::resource('/manage-admin','App\Http\Controllers\Auth\AdminRegisterController');
 
     // afterlogin dashboard 
@@ -63,8 +82,8 @@ Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name
     Route::get('analysis/account','App\Http\Controllers\DiagnosisController@getAccount');
     Route::get('analysis/employee','App\Http\Controllers\DiagnosisController@getEmployee');
     Route::get('analysis/update','App\Http\Controllers\DiagnosisController@getUpdatedData');
-Route::post('analysis/update/search','App\Http\Controllers\DiagnosisController@getUpdatedTransactionSearch')->name('analysis/update/search');
-Route::post('analysis/update/user_search','App\Http\Controllers\DiagnosisController@getUpdatedTransactionUserSearch')->name('analysis/update/user_search');
+    Route::post('analysis/update/search','App\Http\Controllers\DiagnosisController@getUpdatedTransactionSearch')->name('analysis/update/search');
+    Route::post('analysis/update/user_search','App\Http\Controllers\DiagnosisController@getUpdatedTransactionUserSearch')->name('analysis/update/user_search');
 
 
         //setting
