@@ -188,10 +188,15 @@
 
 
             @if ($invoice->description)
-            <div style="position: fixed; bottom: 110px; left: 50%; transform: translateX(-50%); max-width: 794px; width: 100%; padding: 0 20px; text-align:left;">
+            <div style="position: fixed; bottom: 210px; left: 50%; transform: translateX(-50%); max-width: 794px; width: 100%; padding: 0 20px; text-align:left;">
                 <p style="margin: 0;">{!! $invoice->description !!}</p>
             </div>
             @endif
+            <div style="position: fixed; bottom: 100px; left: 56%; transform: translateX(-50%); max-width: 794px; width: 100%; padding: 0 20px; text-align:left;">
+                <h3 style="margin: 0;">
+                    Authorised by
+                </h3>
+            </div>
             <div style="position: fixed; bottom: 0; left: 50%; transform: translateX(-50%); max-width: 794px; width: 100%; padding: 10px 20px; border-top: 1px solid #ddd;">
 
                 <table>
