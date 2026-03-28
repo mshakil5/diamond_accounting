@@ -23,19 +23,19 @@
                                     <input type="hidden" class="form-control" id="codeid" name="codeid">
                                     
                                     <div class="row">
-                                        <div class="col-md-3">
+                                        <div class="col-md-6">
                                             <div class="form-group">
                                                 <label>Invoice Number</label>
                                                 <input type="text" class="form-control" id="invoice_number" name="invoice_number" value="{{$invoiceNumber}}" readonly>
                                             </div>
                                         </div>
-                                        <div class="col-md-6">
+                                        <div class="col-md-6 d-none">
                                             <div class="form-group">
                                                 <label>Bill For <span class="text-danger">*</span></label>
                                                 <input type="text" class="form-control" id="invoice_for" name="invoice_for" required value="">
                                             </div>
                                         </div>
-                                        <div class="col-md-3">
+                                        <div class="col-md-6">
                                             <div class="form-group">
                                                 <label>Date <span class="text-danger">*</span></label>
                                                 <input type="date" class="form-control" id="invoice_date" name="invoice_date" required value="{{ date('Y-m-d') }}">
@@ -66,7 +66,6 @@
                                                         <thead>
                                                             <tr>
                                                                 <th>Description</th>
-                                                                <th width="20%">Period</th>
                                                                 <th width="15%">Price</th>
                                                                 <th width="5%">Action</th>
                                                             </tr>
@@ -75,9 +74,6 @@
                                                             <tr>
                                                                 <td>
                                                                     <textarea class="form-control description summernote" name="description[]" required></textarea>
-                                                                </td>
-                                                                <td>
-                                                                    <input type="text" class="form-control period" name="period[]" required>
                                                                 </td>
                                                                 <td>
                                                                     <input type="number" class="form-control unit_price" name="price[]" min="0" step="0.01" required>
@@ -326,7 +322,6 @@ $(document).ready(function () {
         const html = `
             <tr>
                 <td><textarea class="form-control description summernote" name="description[]" required></textarea></td>
-                <td><input type="text" class="form-control period" name="period[]" required></td>
                 <td><input type="number" class="form-control unit_price" name="price[]" min="0" step="0.01" required></td>
                 <td><button type="button" class="btn btn-sm btn-danger removeRow"><i class="fa fa-trash-o"></i></button></td>
             </tr>

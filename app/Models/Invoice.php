@@ -29,6 +29,10 @@ class Invoice extends Model
         return $this->hasMany(InvoiceDetail::class, 'invoice_id');
     }
 
+    public function branch()
+    {
+        return $this->belongsTo(Branch::class, 'branch_id');
+    }
 
 
 }

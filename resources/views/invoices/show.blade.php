@@ -80,20 +80,24 @@
                     <tr>
                         <td style="width:40%;">
                             <div>
-                                <h5 style="font-size: 12px;text-align: left; line-height: 10px;">Bill To</h5>
+                                <h5 style="font-size: 12px;text-align: left; line-height: 10px;">
+                                Branch: {{ $invoice->branch->branch_name }} <br> <br>
+                                Invoice No: {{ $invoice->invoice_number }} <br> <br>
+                                Bill To
+                                </h5>
                                 {!! $invoice->bill_to !!}                          
                             </div>
                         </td>
                         <td style="width:30%; text-align: center; vertical-align: middle;">
                             <div>
                                 <p style="font-size: 12px; margin: 5px; line-height: 10px; font-weight: bold;">
-                                    Bill For: {{ $invoice->invoice_for }}  
+                                    {{-- Bill For: {{ $invoice->invoice_for }}   --}}
                                 </p>
                             </div>
                         </td>
                         <td style="width:30%;">
                             <div style="text-align: right;">
-                                <p style="font-size: 12px; margin: 5px;text-align: right;line-height: 10px;">Invoice No: {{ $invoice->invoice_number }}</p>
+                                <p style="font-size: 12px; margin: 5px;text-align: right;line-height: 10px;"></p>
                                 <p style="font-size: 12px; margin: 5px;text-align: right;line-height: 10px;">Date: {{ Carbon::parse($invoice->invoice_date)->format('d/m/Y') }}</p>
                             </div>
                         </td>
@@ -103,66 +107,47 @@
             <br>
 
             <div class="row overflow">
-                <table class="table" style="border: 1px solid #dee2e6;">
+                <table class="table" style="border: 1px solid #dee2e6; width: 100%; border-collapse: collapse;">
                     <thead>
                         <tr>
+                            <th style="border: 1px solid #dee2e6; text-align:center; width:10%">Serial</th>
                             <th style="border: 1px solid #dee2e6; text-align:center;">Description</th>
-                            <th style="border: 1px solid #dee2e6; text-align:center;">Period</th>
-                            <th style="border: 1px solid #dee2e6; text-align:center; width:15%">Amount</th>
+                            <th style="border: 1px solid #dee2e6; text-align:center; width:20%">Amount</th>
                         </tr>
                     </thead>
                     <tbody>
-                      @foreach($invoice->details as $index => $item)
+                        {{-- Item Rows --}}
+                        @foreach($invoice->details as $index => $item)
                         <tr>
-                          <td style="border: 1px solid #dee2e6; text-align:center;">{!! $item->description !!}</td>
-                          <td style="border: 1px solid #dee2e6; text-align:center;">{{ $item->period }}</td>
-                          <td style="border: 1px solid #dee2e6; text-align:right;">£{{ number_format($item->unit_price, 2) }}</td>
+                            <td style="border: 1px solid #dee2e6; text-align:center;">{{ $index + 1 }}</td>
+                            <td style="border: 1px solid #dee2e6; text-align:center;">{!! $item->description !!}</td>
+                            <td style="border: 1px solid #dee2e6; text-align:right; padding-right: 8px;">£{{ number_format($item->unit_price, 2) }}</td>
                         </tr>
-                      @endforeach
-                    </tbody>
-                </table>
+                        @endforeach
 
-                <table style="margin-top: 20px;">
-                    <tbody>
+                        {{-- Summary Rows --}}
                         <tr>
-                            <td style="width: 20%">&nbsp;</td>
-                            <td style="width: 25%">&nbsp;</td>
-                            <td style="width: 25%">&nbsp;</td>
-                            <td>Subtotal</td>
-                            <td style="text-align:right;padding-right: 8px;">£{{ number_format($invoice->subtotal, 2) }}</td>
+                            <td colspan="2" style="text-align:right; padding: 8px; border-top: 1px solid #dee2e6;"><strong>Subtotal</strong></td>
+                            <td style="text-align:right; padding-right: 8px; border-top: 1px solid #dee2e6;">£{{ number_format($invoice->subtotal, 2) }}</td>
                         </tr>
+
                         @if($invoice->discount_percent)
                         <tr>
-                            <td style="width: 20%">&nbsp;</td>
-                            <td style="width: 25%">&nbsp;</td>
-                            <td style="width: 25%">&nbsp;</td>
-                            <td>Discount ({{ $invoice->discount_percent }}%)</td>
-                            <td style="text-align:right;padding-right: 8px;">£{{ number_format($invoice->discount_amount, 2) }}</td>
+                            <td colspan="2" style="text-align:right; padding: 8px; border-top: 1px solid #dee2e6;">Discount ({{ $invoice->discount_percent }}%)</td>
+                            <td style="text-align:right; padding-right: 8px; border-top: 1px solid #dee2e6;">£{{ number_format($invoice->discount_amount, 2) }}</td>
                         </tr>
                         @endif
-                        @if($invoice->vat_amount)
+
                         <tr>
-                            <td>&nbsp;</td>
-                            <td>&nbsp;</td>
-                            <td>&nbsp;</td>
-                            <td>VAT</td>
-                            <td style="text-align:right;padding-right: 8px;">£{{ number_format($invoice->vat_amount, 2) }}</td>
+                            <td colspan="2" style="text-align:right; padding: 8px; border-top: 1px solid #dee2e6;">VAT</td>
+                            <td style="text-align:right; padding-right: 8px; border-top: 1px solid #dee2e6;">
+                                £{{ number_format($invoice->vat_amount ?? 0, 2) }}
+                            </td>
                         </tr>
-                        @else
-                         <tr>
-                            <td>&nbsp;</td>
-                            <td>&nbsp;</td>
-                            <td>&nbsp;</td>
-                            <td>VAT</td>
-                            <td style="text-align:right;padding-right: 8px;">£0.00</td>
-                        </tr>
-                        @endif
+
                         <tr>
-                            <td></td>
-                            <td></td>
-                            <td>&nbsp;</td>
-                            <td>Total</td>
-                            <td style="text-align:right;padding-right: 8px;">£{{ number_format($invoice->net_amount, 2) }}</td>
+                            <td colspan="2" style="text-align:right; padding: 8px; background-color: #f8f9fa; border-top: 1px solid #dee2e6;"><strong>Total</strong></td>
+                            <td style="text-align:right; padding-right: 8px; background-color: #f8f9fa; border-top: 1px solid #dee2e6;"><strong>£{{ number_format($invoice->net_amount, 2) }}</strong></td>
                         </tr>
                     </tbody>
                 </table>
@@ -187,17 +172,54 @@
 
 
 
-            @if ($invoice->description)
+            {{-- @if ($invoice->description)
             <div style="position: fixed; bottom: 210px; left: 50%; transform: translateX(-50%); max-width: 794px; width: 100%; padding: 0 20px; text-align:left;">
                 <p style="margin: 0;">{!! $invoice->description !!}</p>
             </div>
-            @endif
-            <div style="position: fixed; bottom: 100px; left: 56%; transform: translateX(-50%); max-width: 794px; width: 100%; padding: 0 20px; text-align:left;">
-                <h3 style="margin: 0;">
-                    Authorised by
-                </h3>
+            @endif --}}
+
+            @if ($invoice->description)
+            <div style="position: fixed; bottom: 210px; left: 50%; transform: translateX(-50%); max-width: 794px; width: 100%; padding: 0 40px;">
+                <h4 style="margin: 0 0 5px 0; font-size: 12px; color: #333; text-transform: uppercase; letter-spacing: 1px;">
+                    Information:
+                </h4>
+
+                <div style="
+                    padding-top: 3px;
+                    font-size: 11px; 
+                    color: #555; 
+                    line-height: .5; 
+                    text-align: justify;
+                ">
+                    {!! $invoice->description !!}
+                </div>
+                
             </div>
-            <div style="position: fixed; bottom: 0; left: 50%; transform: translateX(-50%); max-width: 794px; width: 100%; padding: 10px 20px; border-top: 1px solid #ddd;">
+            @endif
+
+
+            <div style="position: fixed; bottom: 100px; left: 50%; transform: translateX(-50%); max-width: 794px; width: 100%; padding: 0 40px;">
+                <div style="display: flex; justify-content: space-between; align-items: flex-start;">
+                    
+                    <div style="text-align: left;">
+                        <h3 style="margin: 0; font-weight: normal; line-height: 1.6;">
+                            <strong>Authorised by</strong> <br>
+                            Date: ________________
+                        </h3>
+                    </div>
+
+                    <div style="text-align: left;">
+                        <h3 style="margin: 0; font-weight: normal; line-height: 1.6;">
+                            <strong>Receiver Sign</strong> <br>
+                            Date: ________________
+                        </h3>
+                    </div>
+
+                </div>
+            </div>
+
+
+            <div style="position: fixed; bottom: 0; left: 50%; transform: translateX(-50%); max-width: 794px; width: 100%; padding: 10px 20px; border-top: 1px solid #ddd; display:none">
 
                 <table>
                     <tbody>

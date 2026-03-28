@@ -72,7 +72,7 @@ class InvoiceController extends Controller
     {
         $request->validate([
             'invoice_date' => 'required|date',
-            'invoice_for' => 'required|string|max:255',
+            'invoice_for' => 'nullable|string|max:255',
             'bank_information' => 'nullable|string',
             'vat_percent' => 'nullable|numeric|min:0|max:100',
             'discount_percent' => 'nullable|numeric|min:0|max:100',
