@@ -9,12 +9,23 @@
     <meta http-equiv="x-ua-compatible" content="ie=edge">
     <title>Diamonds Group - Invoice</title>
     <style>
-        body {
+        /* body {
             font-family: Arial, Helvetica;
             font-size: 12px;
             margin: 0;
             padding: 20px;
+        } */
+        body {
+            font-family: 'Helvetica', 'Arial', sans-serif; /* Helvetica is safer for PDF */
+            font-size: 12px;
+            margin: 0;
+            padding: 0;
         }
+        /* Ensure colors print correctly in PDF */
+        * {
+            -webkit-print-color-adjust: exact;
+        }
+
         .text-center {
             text-align: center;
         }
@@ -22,8 +33,11 @@
             text-align: right;
         }
         .invoice-body {
-            max-width: 794px;
             margin: 0 auto;
+            width: 100%;
+        }
+        .fixed-bottom {
+            position: absolute;
         }
         table {
             width: 100%;
@@ -59,7 +73,7 @@
                     <tr>
                         <td style="width:50%;">
                             <div style="text-align: left;">
-                                <img src="{{ asset('dlogo.png') }}" width="120px" style="display:inline-block;" />
+                                <img src="{{ $logoBase64 }}" width="120px" style="display:inline-block;" />
                             </div>
                         </td>
                         <td style="width:50%;">
@@ -170,14 +184,6 @@
             </table>
             @endif
 
-
-
-            {{-- @if ($invoice->description)
-            <div style="position: fixed; bottom: 210px; left: 50%; transform: translateX(-50%); max-width: 794px; width: 100%; padding: 0 20px; text-align:left;">
-                <p style="margin: 0;">{!! $invoice->description !!}</p>
-            </div>
-            @endif --}}
-
             @if ($invoice->description)
             <div style="position: fixed; bottom: 210px; left: 50%; transform: translateX(-50%); max-width: 794px; width: 100%; padding: 0 40px;">
                 <h4 style="margin: 0 0 5px 0; font-size: 12px; color: #333; text-transform: uppercase; letter-spacing: 1px;">
@@ -198,24 +204,23 @@
             @endif
 
 
-            <div style="position: fixed; bottom: 100px; left: 50%; transform: translateX(-50%); max-width: 794px; width: 100%; padding: 0 40px;">
-                <div style="display: flex; justify-content: space-between; align-items: flex-start;">
-                    
-                    <div style="text-align: left;">
-                        <h3 style="margin: 0; font-weight: normal; line-height: 1.6;">
-                            <strong>Authorised by</strong> <br>
-                            Date: ________________
-                        </h3>
-                    </div>
-
-                    <div style="text-align: left;">
-                        <h3 style="margin: 0; font-weight: normal; line-height: 1.6;">
-                            <strong>Receiver Sign</strong> <br>
-                            Date: ________________
-                        </h3>
-                    </div>
-
-                </div>
+            <div style="position: absolute; bottom: 100px; width: 100%; padding: 0 40px;">
+                <table style="width: 100%; border: none;">
+                    <tr>
+                        <td style="width: 50%; text-align: left; border: none;">
+                            <h3 style="margin: 0; font-weight: normal; line-height: 1.2;">
+                                <strong>Authorised by</strong> <br>
+                                <span style="font-size: 10px;">Date: ________________</span>
+                            </h3>
+                        </td>
+                        <td style="width: 50%; text-align: right; border: none;">
+                            <h3 style="margin: 0; font-weight: normal; line-height: 1.2;padding-right: 60px;">
+                                <strong>Receiver Sign</strong> <br>
+                                <span style="font-size: 10px;">Date: ________________</span>
+                            </h3>
+                        </td>
+                    </tr>
+                </table>
             </div>
 
 

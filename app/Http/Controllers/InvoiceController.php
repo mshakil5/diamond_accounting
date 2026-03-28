@@ -155,18 +155,49 @@ class InvoiceController extends Controller
             $paidImageBase64 = null;
         }
 
+        // Encode Logo
+        $logoPath = public_path('dlogo.png');
+        $logoBase64 = '';
+        if (file_exists($logoPath)) {
+            $logoBase64 = 'data:image/png;base64,' . base64_encode(file_get_contents($logoPath));
+        }
 
-        return view('invoices.show', compact('invoice','paidImageBase64'));
+
+
+        return view('invoices.show', compact('invoice','paidImageBase64','logoBase64'));
     }
 
     // invoice download as pdf
-    public function invoiceDownload($id)
+    public function invoiceDownload2($id)
     {
         $invoice = Invoice::with(['details'])->findOrFail($id);
 
         $pdf = \PDF::loadView('invoices.show', compact('invoice'));
         $filename = 'Invoice_' . $invoice->invoice_number . '.pdf';
         return $pdf->download($filename);
+    }
+
+    public function invoiceDownload($id)
+    {
+        $invoice = Invoice::with(['details'])->findOrFail($id);
+
+        // Encode Logo
+        $logoPath = public_path('dlogo.png');
+        $logoBase64 = '';
+        if (file_exists($logoPath)) {
+            $logoBase64 = 'data:image/png;base64,' . base64_encode(file_get_contents($logoPath));
+        }
+
+        // Encode Paid Stamp
+        $paidImagePath = public_path('paidbg.png');
+        $paidImageBase64 = null;
+        if (file_exists($paidImagePath)) {
+            $paidImageBase64 = 'data:image/png;base64,' . base64_encode(file_get_contents($paidImagePath));
+        }
+
+        // Pass everything to the view
+        $pdf = \PDF::loadView('invoices.show', compact('invoice', 'paidImageBase64', 'logoBase64'));
+        return $pdf->download('Invoice_' . $invoice->invoice_number . '.pdf');
     }
 
 
