@@ -43,6 +43,9 @@ class InvoiceController extends Controller
                                         <a href="'.route('invoices.download', $row->id).'" class="dropdown-item download" target="_blank">
                                             <i class="fa fa-download"></i> Download
                                         </a>
+                                        <a href="javascript:void(0)" class="dropdown-item delete-invoice" data-id="'.$row->id.'">
+                                            <i class="fa fa-trash text-danger"></i> Delete
+                                        </a>
                                     </div>
                                 </div>';
                     return $dropdown;
@@ -198,6 +201,19 @@ class InvoiceController extends Controller
         // Pass everything to the view
         $pdf = \PDF::loadView('invoices.show', compact('invoice', 'paidImageBase64', 'logoBase64'));
         return $pdf->download('Invoice_' . $invoice->invoice_number . '.pdf');
+    }
+
+    public function destroy($id)
+    {
+        try {
+            $invoice = Invoice::findOrFail($id);
+            $invoice->details()->delete();
+            $invoice->delete();
+
+            return response()->json(['success' => true, 'message' => 'Invoice deleted successfully!']);
+        } catch (\Exception $e) {
+            return response()->json(['success' => false, 'message' => 'Something went wrong.'], 500);
+        }
     }
 
 

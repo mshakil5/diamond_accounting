@@ -193,7 +193,6 @@
                                     <th>Date</th>
                                     <th>Inv. No.</th>
                                     <th>Invoice To</th>
-                                    <th>Invoice For</th>
                                     <th>Amount</th>
                                     @if (auth()->user()->user_type == 11 || auth()->user()->user_type == 2)
                                     <th>Action</th>
@@ -383,7 +382,6 @@ $(document).ready(function () {
             {data: 'date', name: 'date', orderable: false},
             {data: 'invoice_number', name: 'invoice_number', orderable: false},
             {data: 'bill_to', name: 'bill_to'},
-            {data: 'invoice_for', name: 'invoice_for'},
             {data: 'net_amount', name: 'net_amount', render: function(data) {
                 return '£' + parseFloat(data).toFixed(0);
             }},
@@ -397,6 +395,33 @@ $(document).ready(function () {
     function reloadTable() {
         table.ajax.reload(null, false);
     }
+
+
+    $(document).on('click', '.delete-invoice', function() {
+        var id = $(this).data('id');
+        var url = "{{ route('invoices.destroy', ':id') }}";
+        url = url.replace(':id', id);
+
+        if (confirm("Are you sure you want to delete this invoice?")) {
+            $.ajax({
+                url: url,
+                type: 'DELETE',
+                data: {
+                    _token: '{{ csrf_token() }}'
+                },
+                success: function(response) {
+                    if (response.success) {
+                        // Refresh the DataTable
+                        $('.dataTable').DataTable().ajax.reload();
+                        alert(response.message);
+                    }
+                },
+                error: function(xhr) {
+                    alert('Error: Could not delete the invoice.');
+                }
+            });
+        }
+    });
 
 
 
