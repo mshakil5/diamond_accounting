@@ -94,7 +94,7 @@
                                     
                                     <div class="row mt-1">
                                         <div class="col-md-6">
-                                            <div class="form-group">
+                                            <div class="form-group d-none">
                                                 <label>Bank Information</label>
                                                 <textarea class="form-control summernote" id="bank_information" name="bank_information" rows="5">
                                                 </textarea>
