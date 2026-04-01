@@ -59,7 +59,7 @@
                                                 <label>
                                                     Bill To <span class="text-danger">*</span>
                                                 </label>
-                                                <textarea class="form-control summernote"  id="bill_to" name="bill_to"></textarea>
+                                                <textarea class="form-control summernote" id="bill_to" name="bill_to"></textarea>
                                             </div>
                                         </div>
                                     </div>

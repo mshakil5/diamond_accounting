@@ -65,7 +65,10 @@
                                 Invoice No: {{ $invoice->invoice_number }} <br><br>
                                 Bill To
                             </h5>
+                            @if (isset($invoice->bill_to))
                             {!! $invoice->bill_to !!}
+                            @endif
+                            <br> <br>
                         </td>
                         <td style="width:30%;"></td>
                         <td style="width:30%; text-align: right; vertical-align: top;">
@@ -95,12 +98,16 @@
                     <tr>
                         <td style="border: 1px solid #dee2e6; text-align:center; padding: 8px;">{{ $index + 1 }}</td>
                         <td style="border: 1px solid #dee2e6; text-align:center; padding: 8px;">{!! $item->description !!}</td>
-                        <td style="border: 1px solid #dee2e6; text-align:right; padding: 8px;">£{{ number_format($item->unit_price, 2) }}</td>
+                        <td style="border: 1px solid #dee2e6; text-align:right; padding: 8px;">
+                            @if ($item->unit_price > 0)
+                            £{{ number_format($item->unit_price, 2) }}
+                            @endif
+                        </td>
                     </tr>
                     @endforeach
 
                     {{-- ===== EMPTY SPACE ROWS (vertical borders only, no horizontal lines) ===== --}}
-                    @for($i = 0; $i < 10; $i++)
+                    @for($i = 0; $i < 13; $i++)
                     <tr style="height: 25px;">
                         <td style="border-left: 1px solid #dee2e6; border-right: 1px solid #dee2e6; padding: 0;"></td>
                         <td style="border-left: 1px solid #dee2e6; border-right: 1px solid #dee2e6; padding: 0;"></td>
@@ -114,7 +121,9 @@
                             <strong>Subtotal</strong>
                         </td>
                         <td style="text-align:right; padding: 8px; border-top: 1px solid #dee2e6; border: 1px solid #dee2e6;">
-                            £{{ number_format($invoice->subtotal ?? 0, 2) }}
+                            @if ($invoice->subtotal > 0)
+                                £{{ number_format($invoice->subtotal, 2) }}
+                            @endif
                         </td>
                     </tr>
 
@@ -124,7 +133,9 @@
                             Discount ({{ $invoice->discount_percent }}%)
                         </td>
                         <td style="text-align:right; padding: 8px; border: 1px solid #dee2e6;">
+                            @if ($invoice->discount_amount > 0)
                             £{{ number_format($invoice->discount_amount ?? 0, 2) }}
+                            @endif
                         </td>
                     </tr>
                     @endif
@@ -134,7 +145,10 @@
                             VAT
                         </td>
                         <td style="text-align:right; padding: 8px; border: 1px solid #dee2e6;">
+                            
+                            @if ($invoice->vat_amount > 0)
                             £{{ number_format($invoice->vat_amount ?? 0, 2) }}
+                            @endif
                         </td>
                     </tr>
 
@@ -143,7 +157,10 @@
                             <strong>Total</strong>
                         </td>
                         <td style="text-align:right; padding: 8px; background-color: #f8f9fa; border: 1px solid #dee2e6;">
+                            
+                            @if ($invoice->net_amount > 0)
                             <strong>£{{ number_format($invoice->net_amount ?? 0, 2) }}</strong>
+                            @endif
                         </td>
                     </tr>
 

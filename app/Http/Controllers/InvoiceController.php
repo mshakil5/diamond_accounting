@@ -166,7 +166,7 @@ class InvoiceController extends Controller
                 'invoice_date'     => $request->invoice_date,
                 'invoice_for'      => $request->invoice_for,
                 'branch_id'        => auth()->user()->branch_id,
-                'bill_to'          => $request->bill_to ?? 0,
+                'bill_to'          => $request->bill_to ?? '',
                 'vat_amount'       => $request->vat_amount ?? 0,
                 'subtotal'         => $request->subtotal ?? 0,
                 'discount_percent' => $request->discount_percent ?? 0,
