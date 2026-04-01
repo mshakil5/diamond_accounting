@@ -22,8 +22,14 @@ class InvoiceController extends Controller
     {
         if ($request->ajax()) {
             $query = Invoice::with(['details'])->latest();
-            $filter = $request->status_filter;
+            
+            // Status filter
+            if ($request->has('status_filter') && $request->status_filter != '') {
+                $query->where('status', $request->status_filter);
+            }
+            
             $invoices = $query->get();
+            
             return DataTables::of($invoices)
                 ->addIndexColumn()
                 ->addColumn('date', fn($row) => date('d-m-Y', strtotime($row->invoice_date)))
@@ -31,7 +37,45 @@ class InvoiceController extends Controller
                     $billTo = strip_tags($row->bill_to, '<br>');
                     return nl2br($billTo);
                 })
+                ->addColumn('status', function($row) {
+                    $statusBadge = '';
+                    if ($row->status == 1) {
+                        $statusBadge = '<span class="badge badge-warning">Unpaid</span>';
+                    } elseif ($row->status == 2) {
+                        $statusBadge = '<span class="badge badge-success">Paid</span>';
+                    } elseif ($row->status == 3) {
+                        $statusBadge = '<span class="badge badge-danger">Cancelled</span>';
+                    }
+                    return $statusBadge;
+                })
                 ->addColumn('action', function($row) {
+                    $statusOptions = '';
+                    if ($row->status == 1) {
+                        $statusOptions = '
+                            <div class="dropdown-divider"></div>
+                            <a href="javascript:void(0)" class="dropdown-item change-status" data-id="'.$row->id.'" data-status="2">
+                                <i class="fa fa-check text-success"></i> Mark as Paid
+                            </a>
+                            <a href="javascript:void(0)" class="dropdown-item change-status" data-id="'.$row->id.'" data-status="3">
+                                <i class="fa fa-ban text-danger"></i> Cancel
+                            </a>';
+                    } elseif ($row->status == 2) {
+                        $statusOptions = '
+                            <div class="dropdown-divider"></div>
+                            <a href="javascript:void(0)" class="dropdown-item change-status" data-id="'.$row->id.'" data-status="1">
+                                <i class="fa fa-undo text-warning"></i> Mark as Unpaid
+                            </a>
+                            <a href="javascript:void(0)" class="dropdown-item change-status" data-id="'.$row->id.'" data-status="3">
+                                <i class="fa fa-ban text-danger"></i> Cancel
+                            </a>';
+                    } elseif ($row->status == 3) {
+                        $statusOptions = '
+                            <div class="dropdown-divider"></div>
+                            <a href="javascript:void(0)" class="dropdown-item change-status" data-id="'.$row->id.'" data-status="1">
+                                <i class="fa fa-undo text-warning"></i> Mark as Unpaid
+                            </a>';
+                    }
+
                     $dropdown = '<div class="btn-group">
                                     <button type="button" class="btn btn-sm btn-secondary dropdown-toggle" data-toggle="dropdown">
                                         Action
@@ -43,6 +87,8 @@ class InvoiceController extends Controller
                                         <a href="'.route('invoices.download', $row->id).'" class="dropdown-item download" target="_blank">
                                             <i class="fa fa-download"></i> Download
                                         </a>
+                                        '.$statusOptions.'
+                                        <div class="dropdown-divider"></div>
                                         <a href="javascript:void(0)" class="dropdown-item delete-invoice" data-id="'.$row->id.'">
                                             <i class="fa fa-trash text-danger"></i> Delete
                                         </a>
@@ -50,15 +96,14 @@ class InvoiceController extends Controller
                                 </div>';
                     return $dropdown;
                 })
-                ->rawColumns(['action', 'bill_to']) 
+                ->rawColumns(['action', 'bill_to', 'status'])
                 ->make(true);
-
         }
 
         $branch_id = auth()->user()->branch_id;
-
         $prefix = 'D' . date('Ym');
         $latest = Invoice::orderBy('id', 'desc')->first();
+        
         if ($latest) {
             $lastNumber = (int) Str::after($latest->invoice_number, '-');
             $nextNumber = $lastNumber + 1;
@@ -69,6 +114,30 @@ class InvoiceController extends Controller
         $invoiceNumber = $prefix . '-' . str_pad($nextNumber, 2, '0', STR_PAD_LEFT);
 
         return view('invoices.create', compact('invoiceNumber'));
+    }
+
+    // Add this new method for status update
+    public function updateStatus(Request $request, $id)
+    {
+        $invoice = Invoice::findOrFail($id);
+        
+        $request->validate([
+            'status' => 'required|in:1,2,3'
+        ]);
+        
+        $invoice->status = $request->status;
+        $invoice->save();
+        
+        $statusText = [
+            1 => 'Unpaid',
+            2 => 'Paid',
+            3 => 'Cancelled'
+        ];
+        
+        return response()->json([
+            'success' => true,
+            'message' => "Invoice status updated to {$statusText[$request->status]}"
+        ]);
     }
 
     public function store(Request $request)

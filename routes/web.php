@@ -245,6 +245,8 @@ Route::post('employeeTax_ledger_search','App\Http\Controllers\LedgerController@g
     Route::get('/invoices/download/{id}', [InvoiceController::class, 'invoiceDownload'])->name('invoices.download');
     Route::delete('/invoices/{id}', [InvoiceController::class, 'destroy'])->name('invoices.destroy');
 
+    Route::post('/invoices/{id}/update-status', [InvoiceController::class, 'updateStatus'])->name('invoices.update-status');
+
 
 
     

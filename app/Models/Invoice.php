@@ -22,6 +22,7 @@ class Invoice extends Model
         'net_amount',
         'branch_id',
         'created_by',
+        'status',
     ];
 
     public function details()
@@ -32,6 +33,26 @@ class Invoice extends Model
     public function branch()
     {
         return $this->belongsTo(Branch::class, 'branch_id');
+    }
+
+    public function getStatusTextAttribute()
+    {
+        $statuses = [
+            1 => 'Unpaid',
+            2 => 'Paid',
+            3 => 'Cancelled'
+        ];
+        return $statuses[$this->status] ?? 'Unknown';
+    }
+
+    public function getStatusColorAttribute()
+    {
+        $colors = [
+            1 => 'warning',
+            2 => 'success',
+            3 => 'danger'
+        ];
+        return $colors[$this->status] ?? 'secondary';
     }
 
 

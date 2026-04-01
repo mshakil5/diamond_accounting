@@ -4,6 +4,16 @@
     .note-editable p {
         margin: 0;
     }
+    .status-filter-group {
+        display: flex;
+        gap: 10px;
+        align-items: center;
+        margin-bottom: 15px;
+    }
+    .status-filter-group label {
+        margin: 0;
+        font-weight: 600;
+    }
 </style>
 <link href="https://cdn.jsdelivr.net/npm/summernote@0.9.0/dist/summernote.min.css" rel="stylesheet">
     <div id="addThisFormContainer">
@@ -180,12 +190,22 @@
             <div class="col-md-12">
                 <div class="card">
                     <div class="card-header">
-                        <h3>All invoices</h3>
+                        <h3>All Invoices</h3>
                     </div>
                     <div class="card-body">
                         <div class="row">
                             <div class="container">
 
+                                <!-- Status Filter -->
+                                <div class="status-filter-group">
+                                    <label>Filter by Status:</label>
+                                    <select id="statusFilter" class="form-control" style="width: auto; max-width: 200px;">
+                                        <option value="">All</option>
+                                        <option value="1">Unpaid</option>
+                                        <option value="2">Paid</option>
+                                        <option value="3">Cancelled</option>
+                                    </select>
+                                </div>
 
                             <table class="table table-bordered table-hover" id="example1">
                                 <thead>
@@ -194,6 +214,7 @@
                                     <th>Inv. No.</th>
                                     <th>Invoice To</th>
                                     <th>Amount</th>
+                                    <th>Status</th>
                                     @if (auth()->user()->user_type == 11 || auth()->user()->user_type == 2)
                                     <th>Action</th>
                                     @endif
@@ -218,17 +239,9 @@
 @endsection
 @section('scripts')
 <script src="https://cdn.jsdelivr.net/npm/summernote@0.9.0/dist/summernote.min.js"></script>
-{{-- <script src="https://cdn.jsdelivr.net/npm/summernote@0.8.20/dist/summernote-lite.min.js"></script> --}}
 
 <script>
-$(document).ready(function () {
-
-    // function initSummernote(selector = '.summernote') {
-    //     $(selector).summernote({
-    //         height: 80,
-    //     });
-    // }
-    // initSummernote();
+ $(document).ready(function () {
 
     function initSummernote(selector = '.summernote') {
         $(selector).summernote({
@@ -248,7 +261,6 @@ $(document).ready(function () {
             }
         });
 
-        // Remove <p> default margin
         $('.note-editable p').css('margin', '0');
     }
     initSummernote();
@@ -326,7 +338,7 @@ $(document).ready(function () {
             </tr>
         `;
         $('#invoiceItemsTable tbody').append(html);
-        initSummernote('.summernote'); // reinit summernote
+        initSummernote('.summernote');
     }
 
     $(document).on('click', '.removeRow', function() {
@@ -370,21 +382,20 @@ $(document).ready(function () {
             url: ajaxUrl + window.location.search,
             type: "GET",
             data: function (d) {
-                // d.status_filter = $('#statusFilter').val();
-                // d.client_filter = $('#clientFilter').val();
+                d.status_filter = $('#statusFilter').val();
             },
             error: function (xhr, status, error) {
                 console.error(xhr.responseText);
             }
         },
         columns: [
-            // {data: 'DT_RowIndex', name: 'DT_RowIndex', orderable: false, searchable: false},
             {data: 'date', name: 'date', orderable: false},
             {data: 'invoice_number', name: 'invoice_number', orderable: false},
             {data: 'bill_to', name: 'bill_to'},
             {data: 'net_amount', name: 'net_amount', render: function(data) {
                 return '£' + parseFloat(data).toFixed(0);
             }},
+            {data: 'status', name: 'status', orderable: false, searchable: false},
             {data: 'action', name: 'action', orderable: false, searchable: false},
         ],
         responsive: true,
@@ -396,7 +407,51 @@ $(document).ready(function () {
         table.ajax.reload(null, false);
     }
 
+    // Status filter change
+    $('#statusFilter').on('change', function() {
+        table.ajax.reload();
+    });
 
+    // Change Status Handler
+    $(document).on('click', '.change-status', function() {
+        var id = $(this).data('id');
+        var newStatus = $(this).data('status');
+        var url = "{{ route('invoices.update-status', ':id') }}";
+        url = url.replace(':id', id);
+
+        var statusNames = {
+            1: 'Unpaid',
+            2: 'Paid',
+            3: 'Cancelled'
+        };
+
+        if (confirm("Are you sure you want to mark this invoice as " + statusNames[newStatus] + "?")) {
+            $.ajax({
+                url: url,
+                type: 'POST',
+                data: {
+                    _token: '{{ csrf_token() }}',
+                    status: newStatus
+                },
+                success: function(response) {
+                    if (response.success) {
+                        alert(response.message);
+                        reloadTable();
+                    }
+                },
+                error: function(xhr) {
+                    var errors = xhr.responseJSON;
+                    if (errors && errors.message) {
+                        alert(errors.message);
+                    } else {
+                        alert('Error: Could not update invoice status.');
+                    }
+                }
+            });
+        }
+    });
+
+    // Delete Invoice Handler
     $(document).on('click', '.delete-invoice', function() {
         var id = $(this).data('id');
         var url = "{{ route('invoices.destroy', ':id') }}";
@@ -411,8 +466,7 @@ $(document).ready(function () {
                 },
                 success: function(response) {
                     if (response.success) {
-                        // Refresh the DataTable
-                        $('.dataTable').DataTable().ajax.reload();
+                        reloadTable();
                         alert(response.message);
                     }
                 },
@@ -429,4 +483,3 @@ $(document).ready(function () {
 });
 </script>
 @endsection
-
