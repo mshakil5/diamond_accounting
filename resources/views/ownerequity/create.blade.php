@@ -246,19 +246,23 @@
                 account_name=values[1];
                 account_type=values[2];
 
-                if (account_name == "Capital") {
+                var name = account_name.toLowerCase().trim();
+                var type = account_type.toLowerCase().trim();
+
+                if (name === "capital") {
                     $("#transaction_type").html("<option value=''>Please Select</option><option value='Receive'>Receive</option>");
-                } else if (account_name == "Withdraw") {
+                } else if (name === "withdraw") {
                     $("#transaction_type").html("<option value=''>Please Select</option><option value='Payment'>Payment</option>");
-                }else if (account_name == "Revenue Reserve") {
+                } else if (name === "revenue reserve") {
                     $("#transaction_type").html("<option value=''>Please Select</option><option value='Add'>Add</option><option value='Reverse'>Reverse</option>");
-                }else if (account_name == "Capital Reserve") {
+                } else if (name === "capital reserve") {
                     $("#transaction_type").html("<option value=''>Please Select</option><option value='Add'>Add</option><option value='Reverse'>Reverse</option>");
-                }else if (account_type == "Dividend") {
+                } else if (type === "dividend") {
                     $("#transaction_type").html("<option value=''>Please Select</option><option value='Payment'>Payment</option><option value='Payable'>Payable</option>");
-                }else if (account_name == "Share premium") {
+                } else if (name === "share premium") {
                     $("#transaction_type").html("<option value=''>Please Select</option><option value='Receive'>Receive</option>");
                 }
+
             });
 
 
