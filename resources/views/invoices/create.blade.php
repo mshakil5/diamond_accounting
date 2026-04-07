@@ -320,9 +320,21 @@
     // Clear form
     function clearForm() {
         $('#createThisForm')[0].reset();
-        $("#addBtn").val('Create');
-        $("#subtotal, #vat_amount, #discount_amount, #net_amount").val('0.00');
+        $('#codeid').val('');
+        $('#addBtn').val('Create');
+        $('#subtotal, #vat_amount, #discount_amount, #net_amount').val('0.00');
         $('.summernote').summernote('code', '');
+
+        // Reset item rows to just one empty row
+        var tbody = $('#invoiceItemsTable tbody');
+        tbody.empty();
+        tbody.append(`
+            <tr>
+                <td><textarea class="form-control description summernote" name="description[]" required></textarea></td>
+                <td><input type="number" class="form-control unit_price" name="price[]" min="0" step="0.01" required></td>
+                <td><button type="button" class="btn btn-success" id="addCustomItemBtn"><i class="fa fa-plus"></i></button></td>
+            </tr>`);
+        initSummernote('.summernote');
     }
 
     $('#addCustomItemBtn').click(function() { 
@@ -475,6 +487,78 @@
                 }
             });
         }
+    });
+
+    // ── Edit Invoice Handler ──────────────────────────────────────────
+    $(document).on('click', '.edit-invoice', function () {
+        var id = $(this).data('id');
+
+        $.ajax({
+            url: '/invoices/' + id + '/edit',
+            type: 'GET',
+            success: function (invoice) {
+
+                // Populate header fields
+                $('#invoice_number').val(invoice.invoice_number);
+                $('#invoice_date').val(invoice.invoice_date);
+                $('#invoice_for').val(invoice.invoice_for);
+                $('#vat_percent').val(invoice.vat_percent ?? 0);
+                $('#discount_percent').val(invoice.discount_percent ?? 0);
+
+                // Bill To (Summernote)
+                $('#bill_to').summernote('code', invoice.bill_to ?? '');
+
+                // Bank information
+                $('#bank_information').summernote('code', invoice.description ?? '');
+
+                // Store the ID for update & switch button mode
+                $('#codeid').val(invoice.id);
+                $('#addBtn').val('Update');
+
+                // ── Rebuild item rows ──
+                var tbody = $('#invoiceItemsTable tbody');
+                tbody.empty();
+
+                if (invoice.details && invoice.details.length > 0) {
+                    invoice.details.forEach(function (item, index) {
+                        var removeBtn = index === 0
+                            ? '<button type="button" class="btn btn-success" id="addCustomItemBtn"><i class="fa fa-plus"></i></button>'
+                            : '<button type="button" class="btn btn-sm btn-danger removeRow"><i class="fa fa-trash-o"></i></button>';
+
+                        var row = `
+                            <tr>
+                                <td><textarea class="form-control description summernote" name="description[]" required></textarea></td>
+                                <td><input type="number" class="form-control unit_price" name="price[]" min="0" step="0.01" value="${item.unit_price}" required></td>
+                                <td>${removeBtn}</td>
+                            </tr>`;
+                        tbody.append(row);
+
+                        // Init summernote on the new row then set content
+                        var lastTextarea = tbody.find('tr:last .summernote');
+                        lastTextarea.summernote({
+                            height: 80,
+                            toolbar: [
+                                ['style', ['bold', 'italic', 'underline', 'clear']],
+                                ['font', ['fontsize']],
+                                ['color', ['color']],
+                                ['para', ['ul', 'ol', 'paragraph']]
+                            ]
+                        });
+                        lastTextarea.summernote('code', item.description ?? '');
+                    });
+                }
+
+                calculateTotals();
+
+                // Scroll & open form
+                $('html, body').animate({ scrollTop: 0 }, 300);
+                $('#newBtn').hide();
+                $('#addThisFormContainer').slideDown();
+            },
+            error: function () {
+                alert('Could not load invoice data.');
+            }
+        });
     });
 
 

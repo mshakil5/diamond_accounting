@@ -240,6 +240,7 @@ Route::post('employeeTax_ledger_search','App\Http\Controllers\LedgerController@g
     Route::post('/invoices', [InvoiceController::class, 'store']);
     Route::get('/invoices/{id}/edit', [InvoiceController::class, 'edit']);
     Route::post('/invoices-update', [InvoiceController::class, 'update']);
+    Route::post('/invoices/{id}/update', [InvoiceController::class, 'update'])->name('invoices.update');
 
     Route::get('/invoices/show/{id}', [InvoiceController::class, 'show'])->name('invoices.show');
     Route::get('/invoices/download/{id}', [InvoiceController::class, 'invoiceDownload'])->name('invoices.download');

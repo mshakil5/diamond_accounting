@@ -81,11 +81,14 @@ class InvoiceController extends Controller
                                         Action
                                     </button>
                                     <div class="dropdown-menu">
-                                        <a href="'.route('invoices.show', $row->id).'" class="dropdown-item view" target="_blank">
+                                        <a href="'.route('invoices.show', $row->id).'" class="dropdown-item d-none" target="_blank">
                                             <i class="fa fa-eye"></i> View
                                         </a>
-                                        <a href="'.route('invoices.download', $row->id).'" class="dropdown-item download" target="_blank">
+                                        <a href="'.route('invoices.download', $row->id).'" class="dropdown-item" target="_blank">
                                             <i class="fa fa-download"></i> Download
+                                        </a>
+                                        <a href="javascript:void(0)" class="dropdown-item edit-invoice" data-id="'.$row->id.'">
+                                            <i class="fa fa-pencil text-primary"></i> Edit
                                         </a>
                                         '.$statusOptions.'
                                         <div class="dropdown-divider"></div>
@@ -103,7 +106,7 @@ class InvoiceController extends Controller
         $branch_id = auth()->user()->branch_id;
         $prefix = 'D' . date('Ym');
         $latest = Invoice::orderBy('id', 'desc')->first();
-        
+
         if ($latest) {
             $lastNumber = (int) Str::after($latest->invoice_number, '-');
             $nextNumber = $lastNumber + 1;
@@ -282,6 +285,71 @@ class InvoiceController extends Controller
             return response()->json(['success' => true, 'message' => 'Invoice deleted successfully!']);
         } catch (\Exception $e) {
             return response()->json(['success' => false, 'message' => 'Something went wrong.'], 500);
+        }
+    }
+
+
+    public function edit($id)
+    {
+        $invoice = Invoice::with(['details'])->findOrFail($id);
+        return response()->json($invoice);
+    }
+
+    public function update(Request $request, $id)
+    {
+        $request->validate([
+            'invoice_date'     => 'required|date',
+            'invoice_for'      => 'nullable|string|max:255',
+            'bank_information' => 'nullable|string',
+            'vat_percent'      => 'nullable|numeric|min:0|max:100',
+            'discount_percent' => 'nullable|numeric|min:0|max:100',
+            'subtotal'         => 'nullable|numeric|min:0',
+            'net_amount'       => 'nullable|numeric|min:0',
+            'description.*'    => 'nullable|string',
+            'price.*'          => 'nullable|numeric|min:0',
+        ]);
+
+        try {
+            $invoice = Invoice::findOrFail($id);
+
+            $invoice->update([
+                'invoice_date'     => $request->invoice_date,
+                'invoice_for'      => $request->invoice_for,
+                'bill_to'          => $request->bill_to ?? '',
+                'vat_amount'       => $request->vat_amount ?? 0,
+                'subtotal'         => $request->subtotal ?? 0,
+                'discount_percent' => $request->discount_percent ?? 0,
+                'discount_amount'  => $request->discount_amount ?? 0,
+                'net_amount'       => $request->net_amount ?? 0,
+                'description'      => $request->bank_information,
+            ]);
+
+            // Delete old details and re-insert
+            $invoice->details()->delete();
+
+            if ($request->has('description')) {
+                foreach ($request->description as $index => $desc) {
+                    InvoiceDetail::create([
+                        'invoice_id'    => $invoice->id,
+                        'description'   => $desc,
+                        'period'        => $request->period[$index] ?? '',
+                        'unit_price'    => $request->price[$index] ?? 0,
+                        'total_inc_vat' => $request->price[$index] ?? 0,
+                        'status'        => 1,
+                        'created_by'    => auth()->id(),
+                    ]);
+                }
+            }
+
+            return response()->json([
+                'message'  => '<div class="alert alert-success">Invoice updated successfully!</div>',
+                'redirect' => route('invoices.show', $invoice->id)
+            ]);
+
+        } catch (\Throwable $e) {
+            return response()->json([
+                'message' => '<div class="alert alert-danger">Something went wrong: ' . $e->getMessage() . '</div>'
+            ], 500);
         }
     }
 
