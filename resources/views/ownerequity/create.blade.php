@@ -249,6 +249,8 @@
                 var name = account_name.toLowerCase().trim();
                 var type = account_type.toLowerCase().trim();
 
+                console.log(name, type);
+
                 if (name === "capital") {
                     $("#transaction_type").html("<option value=''>Please Select</option><option value='Receive'>Receive</option>");
                 } else if (name === "withdraw") {
