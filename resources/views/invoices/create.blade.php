@@ -337,7 +337,8 @@
         initSummernote('.summernote');
     }
 
-    $('#addCustomItemBtn').click(function() { 
+    // ✅ FIXED: Use event delegation instead of direct binding
+    $(document).on('click', '#addCustomItemBtn', function() { 
         addRowToInvoiceTable();
     });
 
@@ -350,12 +351,20 @@
             </tr>
         `;
         $('#invoiceItemsTable tbody').append(html);
-        initSummernote('.summernote');
+        // Initialize summernote only on the new row
+        initSummernote('#invoiceItemsTable tbody tr:last .summernote');
     }
 
     $(document).on('click', '.removeRow', function() {
         $(this).closest('tr').remove();
         calculateTotals();
+        
+        // If only one row left, change delete button to add button
+        var rows = $('#invoiceItemsTable tbody tr');
+        if (rows.length === 1) {
+            var lastRow = rows.first();
+            lastRow.find('td:last').html('<button type="button" class="btn btn-success" id="addCustomItemBtn"><i class="fa fa-plus"></i></button>');
+        }
     });
 
     $(document).on('input', '.unit_price, #vat_percent, #discount_percent', function() {
@@ -489,7 +498,7 @@
         }
     });
 
-    // ── Edit Invoice Handler ──────────────────────────────────────────
+    // Edit Invoice Handler
     $(document).on('click', '.edit-invoice', function () {
         var id = $(this).data('id');
 
@@ -497,7 +506,6 @@
             url: '/invoices/' + id + '/edit',
             type: 'GET',
             success: function (invoice) {
-
                 // Populate header fields
                 $('#invoice_number').val(invoice.invoice_number);
                 $('#invoice_date').val(invoice.invoice_date);
@@ -515,7 +523,7 @@
                 $('#codeid').val(invoice.id);
                 $('#addBtn').val('Update');
 
-                // ── Rebuild item rows ──
+                // Rebuild item rows
                 var tbody = $('#invoiceItemsTable tbody');
                 tbody.empty();
 
@@ -560,9 +568,6 @@
             }
         });
     });
-
-
-
 
 });
 </script>
