@@ -4,6 +4,7 @@ use App\Http\Controllers\InvoiceController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\ShareholdersController;
 
+    use App\Http\Controllers\AddressesController;
 use Illuminate\Http\Request;
 
 
@@ -250,6 +251,11 @@ Route::post('employeeTax_ledger_search','App\Http\Controllers\LedgerController@g
 
 
 
+    Route::get('/address', [AddressesController::class, 'index'])->name('admin.address');
+    Route::post('/address', [AddressesController::class, 'store']);
+    Route::get('/address/{id}/edit', [AddressesController::class, 'edit']);
+    Route::post('/address-update', [AddressesController::class, 'update']);
+    Route::get('/address/{id}', [AddressesController::class, 'delete']);
     
 
 // });
