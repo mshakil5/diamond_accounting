@@ -36,58 +36,53 @@
 
 
   {{-- login form start  --}}
-      <form method="POST" action="{{ route('admin.login.submit') }}" class="login-form">
+  <form method="POST" action="{{ route('admin.login.submit') }}" class="login-form" id="loginForm">
+    @csrf
+    
+    {{-- Hidden inputs for Location --}}
+    <input type="hidden" name="latitude" id="latitude" value="">
+    <input type="hidden" name="longitude" id="longitude" value="">
 
-        @csrf
-        <h6 style="text-align: center"><i class="fa fa-lg fa-fw fa-user"></i>SIGN IN</h6>
-        <hr>
+    <h6 style="text-align: center"><i class="fa fa-lg fa-fw fa-user"></i>SIGN IN</h6>
+    <hr>
 
-        <div class="form-group">
-          <label class="control-label">OFFICE</label>
-          <select name="branch_id" id="branch_id" class="form-control">
-            <option value="" disabled selected>Please Select Branch</option>
-            @foreach($branch as $branches)
-                <option value="{{$branches->id}}">{{ $branches->branch_name }}</option>
-            @endforeach
-        </select>
-          <span class="help-block"></span>
+    <div class="form-group">
+      <label class="control-label">OFFICE</label>
+      <select name="branch_id" id="branch_id" class="form-control">
+        <option value="" disabled selected>Please Select Branch</option>
+        @foreach($branch as $branches)
+            <option value="{{$branches->id}}">{{ $branches->branch_name }}</option>
+        @endforeach
+      </select>
+      <span class="help-block"></span>
+    </div>
+
+    <div class="form-group">            
+      <label class="control-label">{{ __('E-Mail Address') }}</label>
+      <input id="email" type="email" class="form-control @error('email') is-invalid @enderror" name="email" value="{{ old('email') }}" required autocomplete="email" autofocus>
+      @error('email')
+      <span class="invalid-feedback" role="alert"><strong>{{ $message }}</strong></span>
+      @enderror
+    </div>
+
+    <div class="form-group">
+      <label class="control-label">{{ __('Password') }}</label>
+      <input id="password" type="password" class="form-control @error('password') is-invalid @enderror" name="password" required autocomplete="current-password">
+      @error('password')
+      <span class="invalid-feedback" role="alert"><strong>{{ $message }}</strong></span>
+      @enderror
+    </div>
+
+    <div class="form-group">
+      <div class="utility">
+        <div class="animated-checkbox">
+          <label>
+            <button type="submit" class="btn btn-primary">{{ __('Login') }}</button>
+          </label>
         </div>
-
-        <div class="form-group">            
-          <label class="control-label">{{ __('E-Mail Address') }}</label>
-          <input id="email" type="email" class="form-control @error('email') is-invalid @enderror" name="email" value="{{ old('email') }}" required autocomplete="email" autofocus>
-          @error('email')
-          <span class="invalid-feedback" role="alert">
-              <strong>{{ $message }}</strong>
-          </span>
-          @enderror
-        </div>
-
-        <div class="form-group">
-          <label class="control-label">{{ __('Password') }}</label>
-          <input id="password" type="password" class="form-control @error('password') is-invalid @enderror" name="password" required autocomplete="current-password">
-
-          @error('password')
-          <span class="invalid-feedback" role="alert">
-              <strong>{{ $message }}</strong>
-          </span>
-          @enderror
-        </div>
-
-
-        <div class="form-group">
-          <div class="utility">
-            <div class="animated-checkbox">
-              <label>
-                <button type="submit" class="btn btn-primary">
-                    {{ __('Login') }}
-                </button>
-              </label>
-            </div>
-          </div>
-        </div>
-      </form>
-{{-- login form end  --}}
+      </div>
+    </div>
+  </form>
 
 {{-- forget pass form start  --}}
       <form class="forget-form" action="index.html">
@@ -121,5 +116,21 @@
       return false;
     });
   </script>
+
+  <script type="text/javascript">
+    // Fetch user's location on page load
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(function(position) {
+        document.getElementById('latitude').value = position.coords.latitude;
+        document.getElementById('longitude').value = position.coords.longitude;
+      }, function(error) {
+        alert("Location access is required to login. Please allow location access in your browser.");
+        console.warn('ERROR(' + error.code + '): ' + error.message);
+      });
+    } else {
+      alert("Geolocation is not supported by your browser. You cannot login.");
+    }
+  </script>
+
 </body>
 </html>
