@@ -10,6 +10,16 @@ class IpWhitelist
 {
     public function handle(Request $request, Closure $next)
     {
+        // ==========================================
+        // IP WHITELIST IS CURRENTLY TURNED OFF
+        // To turn it back on, delete the line below 
+        // and uncomment the code underneath.
+        // ==========================================
+        return $next($request);
+
+        
+        /* --- OLD IP WHITELIST LOGIC (TURNED OFF) ---
+        
         // Fetch allowed IPs from .env file
         $allowedIps = array_filter(array_map('trim', explode(',', env('ALLOWED_IPS', ''))));
 
@@ -19,11 +29,6 @@ class IpWhitelist
         }
 
         $clientIp = $request->ip();
-
-        // if (!IpUtils::checkIp($clientIp, $allowedIps)) {
-        //     abort(403, "Access denied for IP: {$clientIp}");
-        // }
-
 
         if (!IpUtils::checkIp($clientIp, $allowedIps)) {
                 $html = <<<HTML
@@ -86,5 +91,7 @@ class IpWhitelist
         }
 
         return $next($request);
+        
+        --- END OLD IP WHITELIST LOGIC --- */
     }
 }
