@@ -26,14 +26,16 @@
           <h5 style="text-align: center; color: #cd0a0a">If you attempt to  connect or access this system and you are not an authorized user you will breach the Computer Misuse Act 1990, which is criminal offence.  </h5>
       </div>
     
-    @if (!$errors->isEmpty())
-    <div class="danger">
-      <span style="color: red">{{ $errors }}</span>
-    </div>
-  @endif
 
-    <div class="login-box">
 
+    <div class="login-box" style="text-align: center">
+      @if (!$errors->isEmpty())
+        <div class="danger">
+          <span style="color: red">{{ $errors }}</span>
+        </div>
+        <hr>
+
+      @endif
 
   {{-- login form start  --}}
   <form method="POST" action="{{ route('admin.login.submit') }}" class="login-form" id="loginForm">
@@ -45,6 +47,7 @@
 
     <h6 style="text-align: center"><i class="fa fa-lg fa-fw fa-user"></i>SIGN IN</h6>
     <hr>
+
 
     <div class="form-group">
       <label class="control-label">OFFICE</label>

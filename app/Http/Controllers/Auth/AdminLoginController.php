@@ -39,53 +39,61 @@ class AdminLoginController extends Controller
         }
     }
 
-        public function login(Request $request)
+    public function login(Request $request)
     {
-        // 1. Validate form data including lat/long and branch_id
-        $this->validate($request, [
+        // 1. Fetch user type BEFORE validation
+        $userType = Admin::where('email', $request->email)->value('user_type');
+
+        // 2. Define base validation rules (ALL users need these)
+        $rules = [
             'email'     => 'required|email',
-            'password'  => 'required|min:5',
-            'branch_id' => 'required', // Make sure branch is required for location check
+            'password'  => 'required',
             'latitude'  => 'required',
-            'longitude' => 'required'
-        ]);
+            'longitude' => 'required',
+        ];
 
-        $userLat = $request->latitude;
-        $userLng = $request->longitude;
+        // Add branch_id rule ONLY if user exists AND is NOT a Super Admin (11)
+        if (!is_null($userType) && $userType != 11) {
+            $rules['branch_id'] = 'required';
+        }
 
-        // --- LOCATION CHECK FOR ALL USERS ---
-        
-        // Find the Address for the selected Branch
-        $address = Address::where('branch_id', $request->branch_id)->latest()->first();
+        // Run validation
+        $this->validate($request, $rules);
 
-        if ($address) {
-            // Calculate distance between user's location and the Branch's address location
-            $distance = $this->calculateDistance($userLat, $userLng, $address->latitude, $address->longitude);
+        // 3. Location Check (ONLY for existing non-Super Admins)
+        if (!is_null($userType) && $userType != 11) {
+            $userLat = $request->latitude;
+            $userLng = $request->longitude;
 
-            // Check if user is outside the allowed radius (allowed_radius is in meters)
-            if ($distance > $address->allowed_radius) {
-                $errors = 'Access Denied: You are not within the allowed location area to login.';
+            // Find the Address for the selected Branch
+            // NOTE: Make sure to filter by branch_id so it checks the correct branch!
+            $address = Address::where('branch_id', $request->branch_id)->latest()->first();
+
+            if ($address) {
+                // Calculate distance
+                $distance = $this->calculateDistance($userLat, $userLng, $address->latitude, $address->longitude);
+
+                // Check if user is outside the allowed radius
+                if ($distance > $address->allowed_radius) {
+                    $errors = 'Access Denied: You are not within the allowed location area to login.';
+                    return redirect()->back()->withErrors($errors)->withInput($request->only('email', 'remember'));
+                }
+            } else {
+                $errors = 'No allowed location is set up for this branch.';
                 return redirect()->back()->withErrors($errors)->withInput($request->only('email', 'remember'));
             }
-        } else {
-            // If no address is found for this branch in the database, deny access for safety
-            $errors = 'No allowed location is set up for this branch.';
-            return redirect()->back()->withErrors($errors)->withInput($request->only('email', 'remember'));
         }
         
         // --- END LOCATION CHECK ---
 
-        // Get user type
-        $check = Admin::where('email', $request->email)->value('user_type');
-
-        // 2. Proceed to Authentication if location check passed
-        if ($check == 11) {
-            // Super Admin Login
+        // 4. Proceed to Authentication
+        if ($userType == 11) {
+            // Super Admin Login (No branch_id required)
             if (Auth::guard('admin')->attempt(['email' => $request->email, 'password' => $request->password], $request->remember)) {
                 return redirect()->intended(route('admin.dashboard'));
             }
         } else {
-            // Regular Employee Login
+            // Regular Employee Login (branch_id included)
             if (Auth::guard('admin')->attempt(['branch_id' => $request->branch_id, 'email' => $request->email, 'password' => $request->password], $request->remember)) {
                 return redirect()->intended(route('admin.dashboard'));
             }
@@ -95,4 +103,7 @@ class AdminLoginController extends Controller
         $errors = 'Provided credentials are not correct';
         return redirect()->back()->withErrors($errors)->withInput($request->only('email', 'remember'));
     }
+
+
+
 }
