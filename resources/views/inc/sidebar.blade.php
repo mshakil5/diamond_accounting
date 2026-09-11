@@ -126,7 +126,7 @@
 
         {{-- //super admin|Data entry|Read full access|sales entry  --}}
         @if (auth()->user()->user_type == 11 || auth()->user()->user_type == 1 || auth()->user()->user_type == 2 || auth()->user()->user_type == 3)
-        <li><a class="app-menu__item" href="{{url('regular')}}" id="regular"><i class="app-menu__icon fa fa-dashboard"></i><span class="app-menu__label">Regular Form</span></a></li>
+        <li><a class="app-menu__item" href="{{url('regular')}}" id="regular"><i class="app-menu__icon fa fa-dashboard"></i><span class="app-menu__label">Daily Sales Form</span></a></li>
 
         @endif
 

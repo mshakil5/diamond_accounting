@@ -5,7 +5,7 @@
             <div class="col-md-12">
                 <div class="card">
                     <div class="card-header">
-                        <h3>Room Sales</h3>
+                        <h3>Daily Sales Form</h3>
                         <div class="ermsg">
 
 
@@ -113,7 +113,7 @@
             <div class="col-md-12">
                 <div class="card">
                     <div class="card-header">
-                        <h3 class="no-print"> Regular Form Details</h3>
+                        <h3 class="no-print"> Daily Sales Form Details</h3>
 
                         {{-- search strt  --}}
                         <div class="no-print">

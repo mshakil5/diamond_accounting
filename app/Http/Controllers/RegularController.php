@@ -22,108 +22,54 @@ class RegularController extends Controller
     public function index(Request $request)
     {
         $branch_id = auth()->user()->branch_id;
+        $fromDate = $request->input('fromDate');
+        $toDate   = $request->input('toDate');
 
+        // Base query
+        $query = Regular::where('branch_id', $branch_id);
 
-
-        if(!empty($request->input('fromDate')) && !empty($request->input('toDate'))){
-            $branch_id = auth()->user()->branch_id;
-            $fromDate = $request->input('fromDate');
-            $toDate   = $request->input('toDate');
-
-            $cash = DB::table('regulars')->where([
-                ['branch_id','=', $branch_id],
-                ['date', '>=', $fromDate],
-                ['date', '<=', $toDate],
-            ])->sum('regulars.cash');
-
-            $bank = DB::table('regulars')->where([
-                ['branch_id','=', $branch_id],
-                ['date', '>=', $fromDate],
-                ['date', '<=', $toDate],
-            ])->sum('regulars.bank');
-    
-            $eviivo = DB::table('regulars')->where([
-                ['branch_id','=', $branch_id],
-                ['date', '>=', $fromDate],
-                ['date', '<=', $toDate],
-            ])->sum('regulars.eviivo');
-                
-            $parking_cash = DB::table('regulars')->where([
-                ['branch_id','=', $branch_id],
-                ['date', '>=', $fromDate],
-                ['date', '<=', $toDate],
-            ])->sum('regulars.parking_cash');
-                
-            $parking_card = DB::table('regulars')->where([
-                ['branch_id','=', $branch_id],
-                ['date', '>=', $fromDate],
-                ['date', '<=', $toDate],
-            ])->sum('regulars.parking_card');
-                
-            $other_sales = DB::table('regulars')->where([
-                ['branch_id','=', $branch_id],
-                ['date', '>=', $fromDate],
-                ['date', '<=', $toDate],
-            ])->sum('regulars.other_sales');
-                
-            $returnamount = DB::table('regulars')->where([
-                ['branch_id','=', $branch_id],
-                ['date', '>=', $fromDate],
-                ['date', '<=', $toDate],
-            ])->sum('regulars.returnamount');
-                
-            $advance_sales = DB::table('regulars')->where([
-                ['branch_id','=', $branch_id],
-                ['date', '>=', $fromDate],
-                ['date', '<=', $toDate],
-            ])->sum('regulars.advance_sales');
-                
-            $data = Regular::where([
-                ['date', '>=', $fromDate],
-                ['date', '<=', $toDate],
-                ['branch_id', '=', $branch_id],
-            ])->orderBy('date','DESC')->orderBy('id','DESC')->get();
-            
-            
-        }else{
-            
-             $branch_id = auth()->user()->branch_id;
-            
-            $fromDate = "";
-            $toDate = "";
-            
-            $cash = DB::table('regulars')->where('branch_id', $branch_id)->sum('regulars.cash');
-                
-            $bank = DB::table('regulars')->where('branch_id', $branch_id)->sum('regulars.bank');
-                
-            $eviivo = DB::table('regulars')->where('branch_id', $branch_id)->sum('regulars.eviivo');
-                
-            $parking_cash = DB::table('regulars')->where('branch_id', $branch_id)->sum('regulars.parking_cash');
-                
-            $parking_card = DB::table('regulars')->where('branch_id', $branch_id)->sum('regulars.parking_card');
-                
-            $other_sales = DB::table('regulars')->where('branch_id', $branch_id)->sum('regulars.other_sales');
-                
-            $returnamount = DB::table('regulars')->where('branch_id', $branch_id)->sum('regulars.returnamount');
-                
-            $advance_sales = DB::table('regulars')->where('branch_id', $branch_id)->sum('regulars.advance_sales');
-                
-            $data = Regular::where('branch_id', $branch_id)->orderBy('date','DESC')->orderBy('id','DESC')->get();
+        if (!empty($fromDate) && !empty($toDate)) {
+            $query->whereBetween('date', [$fromDate, $toDate]);
         }
-        
-        $pdfhead = Array('fromDate'=> $fromDate,'toDate'=> $toDate,'title'=>'Regular Sales');
-        
+
+        // ✅ Single query to get ALL sums at once
+        $sums = (clone $query)->selectRaw("
+            COALESCE(SUM(cash),0)          AS cash,
+            COALESCE(SUM(bank),0)          AS bank,
+            COALESCE(SUM(eviivo),0)        AS eviivo,
+            COALESCE(SUM(parking_cash),0)  AS parking_cash,
+            COALESCE(SUM(parking_card),0)  AS parking_card,
+            COALESCE(SUM(other_sales),0)   AS other_sales,
+            COALESCE(SUM(returnamount),0)  AS returnamount,
+            COALESCE(SUM(advance_sales),0) AS advance_sales
+        ")->first();
+
+        $cash           = $sums->cash;
+        $bank           = $sums->bank;
+        $eviivo         = $sums->eviivo;
+        $parking_cash   = $sums->parking_cash;
+        $parking_card   = $sums->parking_card;
+        $other_sales    = $sums->other_sales;
+        $returnamount   = $sums->returnamount;
+        $advance_sales  = $sums->advance_sales;
+
+        // ✅ Use pagination instead of get() — much faster for large datasets
+        $data = (clone $query)
+                    ->orderBy('date', 'DESC')
+                    ->orderBy('id', 'DESC')
+                    ->paginate(50);
+
+        $pdfhead = [
+            'fromDate' => $fromDate ?? '',
+            'toDate'   => $toDate ?? '',
+            'title'    => 'Daily Sales',
+        ];
+
         return view('regular.create')
-            ->with('advance_sales',$advance_sales)
-            ->with('returnamount',$returnamount)
-            ->with('other_sales',$other_sales)
-            ->with('parking_card',$parking_card)
-            ->with('parking_cash',$parking_cash)
-            ->with('eviivo',$eviivo)
-            ->with('bank',$bank)
-            ->with('cash',$cash)
-            ->with('data',$data)
-            ->with('pdfhead',$pdfhead);
+            ->with(compact(
+                'advance_sales','returnamount','other_sales','parking_card',
+                'parking_cash','eviivo','bank','cash','data','pdfhead'
+            ));
     }
 
     /**
