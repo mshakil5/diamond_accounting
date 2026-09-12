@@ -203,6 +203,8 @@ Route::post('employeeTax_ledger_search','App\Http\Controllers\LedgerController@g
     Route::get('financialstatement','App\Http\Controllers\FinancialStatementController@getFinancialStatement');
     Route::post('financial_statement_search','App\Http\Controllers\FinancialStatementController@getFinancialStatement')->name('financial_statement_search');
 
+    
+    Route::resource('note', 'App\Http\Controllers\NoteController')->name('note', 'note');
 
 
 

@@ -120,6 +120,7 @@
                 <li><a class="treeview-item" href="{{url('profit_loss')}}" id="profit_loss"><i class="icon fa fa-circle-o"></i> Profit & Loss </a></li>
                 <li><a class="treeview-item" href="{{url('retained_earnings')}}" id="retained_earnings"><i class="icon fa fa-circle-o"></i> Retained Earnings </a></li>
                 <li><a class="treeview-item" href="{{url('financialstatement')}}" id="balancesheet"><i class="icon fa fa-circle-o"></i> Balance Sheet</a></li>
+                <li><a class="treeview-item" href="{{url('note')}}" id="note_active"><i class="icon fa fa-circle-o"></i> Note</a></li>
             </ul>
         </li>
         @endif
